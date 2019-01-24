@@ -15,7 +15,8 @@ def TrataImagem(src):
     label_num_valid =0
 
     """LENDO IMAGEM - TRATAMENTO INICIAL"""
-    img = cv.imread(src)
+    imgRaw = cv.imread(src)
+    img= cv.cvtColor(imgRaw, cv.COLOR_BGR2RGB)
     resized = cv.resize(img, (500, 500))
     """SEPARANDO A  MASCARA ONDE TEM AS CORES DE INTERESSE"""
     ##Faixa da cor a ser cortada

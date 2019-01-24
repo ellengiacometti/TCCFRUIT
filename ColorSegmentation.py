@@ -4,58 +4,66 @@ import numpy as np
 import skimage.measure as sm
 import matplotlib.pyplot as plt
 from skimage import feature
-from skimage.filters import roberts, sobel, scharr, prewitt
 import matplotlib.patches as mpatches
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
-from matplotlib import colors
+
 
 #Imagem Crua
-src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_2.jpg"
+src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_4.jpg"
+#Li a Imagem
 imgRaw = cv.imread(src)
 imRGB= cv.cvtColor(imgRaw, cv.COLOR_BGR2RGB)
 im = cv.cvtColor(imRGB, cv.COLOR_BGR2GRAY)
+Canny = feature.canny(im, sigma=0.1)
 
-Sobel = sobel(im)
-Canny = feature.canny(im, sigma=0)
-Prewitt = prewitt(im)
-
-
-# display results
-fig, (ax1, ax2) = plt.(1,1)
-
-ax1.imshow(imRGB, cmap=plt.cm.gray)
-ax1.axis('off')
-ax1.set_title('Image RGB', fontsize=20)
-
-ax2.imshow(Canny, cmap=plt.cm.gray)
-ax2.axis('off')
-ax2.set_title('Canny Filter', fontsize=20)
-fig.tight_layout()
-
-plt.show()
-
+## Tornando false = 0
 Canny=(Canny * 1.0).astype(np.float32)
+
+##Conectando imagem
 block_size = 12
 kernel = np.ones((block_size, block_size), np.uint8)
 cv_thresh_Mo = cv.morphologyEx(Canny, cv.MORPH_CLOSE, kernel)
-cv_thresh_La, label_num, = sm.label(cv_thresh_Mo, return_num=1, connectivity=1)
+
+##Borrando
+blur = cv.blur(cv_thresh_Mo, (19, 19))
+cv_thresh_La, label_num, = sm.label(blur, return_num=1, connectivity=2)
 print("\nLabels Encontrados:", label_num, "\n")
 
 
-fig1, ( ax3, ax4) = plt.subplots(1,2)
-ax3.imshow(cv_thresh_Mo, cmap=plt.cm.gray)
+
+fig, (ax1, ax2,ax3,ax4,ax5) = plt.subplots(1, 5, figsize=(50, 50))
+ax1.axis('off')
+ax1.imshow(imRGB, cmap=plt.cm.gray)
+ax1.set_title('Image RGB')
+
+ax2.axis('off')
+ax2.imshow(Canny, cmap=plt.cm.gray)
+ax2.set_title('Canny Filter')
+
 ax3.axis('off')
-ax3.set_title('cv_thresh_Mo ',  fontsize=20)
+ax3.imshow(cv_thresh_Mo, cmap=plt.cm.gray)
+ax3.set_title('Connected')
 
-ax4.imshow(cv_thresh_La, cmap=plt.cm.gray)
+ax4.imshow(blur, cmap=plt.cm.gray)
 ax4.axis('off')
-ax4.set_title('cv_thresh_La ',  fontsize=20)
+ax4.set_title(' Blurred ')
 
-fig1.tight_layout()
+ax5.imshow(cv_thresh_La, cmap=plt.cm.gray)
+ax5.axis('off')
+ax5.set_title('Labeled ')
 plt.show()
 
 
+contornos = sm.find_contours(blur, 0.25)
+fig1, ax = plt.subplots()
+ax.imshow(imRGB, interpolation='nearest', cmap=plt.cm.gray)
+
+for n, contorno in enumerate(contornos):
+    ax.plot(contorno[:, 1], contorno[:, 0], linewidth=2)
+
+ax.axis('image')
+ax.set_xticks([])
+ax.set_yticks([])
+plt.show()
 
 
 
