@@ -1,8 +1,10 @@
-import cv2 as cv2
+import cv2 as cv
 import argparse
 import numpy as np
 import skimage.measure as sm
 import matplotlib.pyplot as plt
+from skimage import feature
+from skimage.filters import roberts, sobel, scharr, prewitt
 import matplotlib.patches as mpatches
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
@@ -10,26 +12,57 @@ from matplotlib import colors
 
 #Imagem Crua
 src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_2.jpg"
-imgRaw = cv2.imread(src)
-# plt.imshow(imgRaw)
-# plt.show()
-#Imagem RGB
-imgRGB = cv2.cvtColor(imgRaw, cv2.COLOR_BGR2RGB)
-# plt.imshow(imgRGB)
-# plt.show()
+imgRaw = cv.imread(src)
+imRGB= cv.cvtColor(imgRaw, cv.COLOR_BGR2RGB)
+im = cv.cvtColor(imRGB, cv.COLOR_BGR2GRAY)
 
-r, g, b = cv2.split(imgRGB)
-fig = plt.figure()
-axis = fig.add_subplot(1, 1, 1, projection="3d")
-pixel_colors = imgRGB.reshape((np.shape(imgRGB)[0]*np.shape(imgRGB)[1], 3))
-norm = colors.Normalize(vmin=-1.,vmax=1.)
-norm.autoscale(pixel_colors)
-pixel_colors = norm(pixel_colors).tolist()
-axis.scatter(r.flatten(), g.flatten(), b.flatten(), facecolors=pixel_colors, marker=".")
-axis.set_xlabel("Red")
-axis.set_ylabel("Green")
-axis.set_zlabel("Blue")
+Sobel = sobel(im)
+Canny = feature.canny(im, sigma=0)
+Prewitt = prewitt(im)
+
+
+# display results
+fig, (ax1, ax2) = plt.(1,1)
+
+ax1.imshow(imRGB, cmap=plt.cm.gray)
+ax1.axis('off')
+ax1.set_title('Image RGB', fontsize=20)
+
+ax2.imshow(Canny, cmap=plt.cm.gray)
+ax2.axis('off')
+ax2.set_title('Canny Filter', fontsize=20)
+fig.tight_layout()
+
 plt.show()
+
+Canny=(Canny * 1.0).astype(np.float32)
+block_size = 12
+kernel = np.ones((block_size, block_size), np.uint8)
+cv_thresh_Mo = cv.morphologyEx(Canny, cv.MORPH_CLOSE, kernel)
+cv_thresh_La, label_num, = sm.label(cv_thresh_Mo, return_num=1, connectivity=1)
+print("\nLabels Encontrados:", label_num, "\n")
+
+
+fig1, ( ax3, ax4) = plt.subplots(1,2)
+ax3.imshow(cv_thresh_Mo, cmap=plt.cm.gray)
+ax3.axis('off')
+ax3.set_title('cv_thresh_Mo ',  fontsize=20)
+
+ax4.imshow(cv_thresh_La, cmap=plt.cm.gray)
+ax4.axis('off')
+ax4.set_title('cv_thresh_La ',  fontsize=20)
+
+fig1.tight_layout()
+plt.show()
+
+
+
+
+
+
+
+
+
 
 # def segment_fish(image):
 #     ''' Attempts to segment the clownfish out of the provided image '''
