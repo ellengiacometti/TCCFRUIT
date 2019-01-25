@@ -1,5 +1,6 @@
 import cv2 as cv
 import argparse
+import heapq
 import numpy as np
 import skimage.measure as sm
 import matplotlib.pyplot as plt
@@ -8,29 +9,36 @@ import matplotlib.patches as mpatches
 
 
 #Imagem Crua
-src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_4.jpg"
+src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_1.jpg"
 #Li a Imagem
 imgRaw = cv.imread(src)
 imRGB= cv.cvtColor(imgRaw, cv.COLOR_BGR2RGB)
 im = cv.cvtColor(imRGB, cv.COLOR_BGR2GRAY)
 Canny = feature.canny(im, sigma=0.1)
 
-## Tornando false = 0
+## Tornando  a foto de false para 0
 Canny=(Canny * 1.0).astype(np.float32)
 
 ##Conectando imagem
-block_size = 12
+block_size = 28
 kernel = np.ones((block_size, block_size), np.uint8)
 cv_thresh_Mo = cv.morphologyEx(Canny, cv.MORPH_CLOSE, kernel)
 
 ##Borrando
-blur = cv.blur(cv_thresh_Mo, (19, 19))
-cv_thresh_La, label_num, = sm.label(blur, return_num=1, connectivity=2)
+blur = cv.blur(cv_thresh_Mo, (21, 21))
+
+##Conectando imagem
+block_size = 28
+kernel = np.ones((block_size, block_size), np.uint8)
+cv_thresh_Mo = cv.morphologyEx(blur, cv.MORPH_CLOSE, kernel)
+
+##Inserindo Labels
+cv_thresh_La, label_num, = sm.label(cv_thresh_Mo, return_num=1, connectivity=2)
 print("\nLabels Encontrados:", label_num, "\n")
 
+### EXIBINDO AS FOTOS###
 
-
-fig, (ax1, ax2,ax3,ax4,ax5) = plt.subplots(1, 5, figsize=(50, 50))
+fig, (ax1, ax2,ax3,ax4,ax5) = plt.subplots(1, 5, figsize=(80, 80))
 ax1.axis('off')
 ax1.imshow(imRGB, cmap=plt.cm.gray)
 ax1.set_title('Image RGB')
@@ -53,17 +61,30 @@ ax5.set_title('Labeled ')
 plt.show()
 
 
-contornos = sm.find_contours(blur, 0.25)
+contornos = sm.find_contours(blur,0.2,fully_connected='high')
+
 fig1, ax = plt.subplots()
 ax.imshow(imRGB, interpolation='nearest', cmap=plt.cm.gray)
+# print("\nContornos Encontrados:", len(contornos), "\n")
 
-for n, contorno in enumerate(contornos):
-    ax.plot(contorno[:, 1], contorno[:, 0], linewidth=2)
+for  n, contorno in enumerate(contornos):
+    coord = sm.approximate_polygon(contorno, tolerance=40)
+    if(len(coord)>=6 and len(contorno) >=1500 and len(contorno)<=4000):
+        ax.plot(contorno[:, 1], contorno[:, 0],'-b', linewidth=2)
+        # input()
+        # plt.show()
+        # ax.plot(coords[:, 1], coords[:, 0], '-r', linewidth=2)
 
+    print("Contornos Encontrados:", len(contorno), len(coord))
 ax.axis('image')
 ax.set_xticks([])
 ax.set_yticks([])
 plt.show()
+"""CONTINUE ESSA LÓGICA"""
+#Preciso pegar a variável  list contornos e transformar em algo ,
+# de forma que eu possa acessar os ndarrays contidos nela e selecionar os 2 maiores
+# contornos= np.array(contornos)
+# heapq.nlargest(2, contornos)
 
 
 
