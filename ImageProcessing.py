@@ -1,6 +1,4 @@
 import cv2 as cv
-##import argparse
-import matplotlib.gridspec as gs
 from heapq import nlargest
 import numpy as np
 import skimage.measure as sm
@@ -9,7 +7,7 @@ from skimage import feature,morphology
 
 """CAPTURA DE  IMAGEM"""
 # Li a Imagem
-src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_14.jpg"
+src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_16_1.jpg"
 # Imagem Crua
 imgRaw = cv.imread(src)
 # Imagem em RGB
@@ -93,8 +91,15 @@ for i in range(tamanho_contorno):
     tamanho[i]=contornos[i].shape[0]
 
 #Detectando os N maiores contornos e seus indices, alterando N , os N maiores contornos serão desenhados
-maiores=nlargest(2,enumerate(tamanho),key=lambda x: x[1])
+maiores=nlargest(1,enumerate(tamanho),key=lambda x: x[1])
 print("\nMaiores:", maiores)
+
+"""ANÁLISE DE AREA"""
+#Convertendo o valor  dado pelo scikit find contour para funcionar com a função de achar área do contorno do OpenCV
+Area = cv.contourArea(np.around(np.array([[pt] for pt in contornos[maiores[0][0]]]).astype(np.int32)))
+print("\nArea:", Area)
+#***IMPORTANTE: Na análise feita cortando as fotos o valor da área muda bem pouco.Essa mudança apenas ocorre pois o código pega um contorno levemente diferente.
+#***IMPORTANTE: No entanto se for feito RESIZE o valor MUDA TOTALMENTE![Creio que na mesma proporção que foi feito o RESIZE]
 
 """PLOTANDO OS CONTORNOS ENCONTRADOS"""
 fig1, ax = plt.subplots()
