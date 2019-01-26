@@ -7,10 +7,9 @@ import matplotlib.pyplot as plt
 from skimage import feature
 import matplotlib.patches as mpatches
 
-# tamanho =[]
-# indice=[]
+"""PROCESSANDO IMAGEM"""
 #Imagem Crua
-src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_3.jpg"
+src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_1.jpg"
 #Li a Imagem
 imgRaw = cv.imread(src)
 imRGB= cv.cvtColor(imgRaw, cv.COLOR_BGR2RGB)
@@ -34,69 +33,69 @@ kernel = np.ones((block_size, block_size), np.uint8)
 cv_thresh_Mo = cv.morphologyEx(blur, cv.MORPH_CLOSE, kernel)
 
 ##Inserindo Labels
-cv_thresh_La, label_num, = sm.label(cv_thresh_Mo, return_num=1, connectivity=2)
+cv_thresh_La, label_num, = sm.label(blur, return_num=1, connectivity=2)
 print("\nLabels Encontrados:", label_num, "\n")
 
-### EXIBINDO AS FOTOS###
-
+"""EXIBINDO AS FOTOS"""
+fig, (ax1, ax2,ax3,ax4,ax5) = plt.subplots(1, 5)
 # fig, (ax1, ax2,ax3,ax4,ax5) = plt.subplots(1, 5, figsize=(80, 80))
-# ax1.axis('off')
-# ax1.imshow(imRGB, cmap=plt.cm.gray)
-# ax1.set_title('Image RGB')
-#
-# ax2.axis('off')
-# ax2.imshow(Canny, cmap=plt.cm.gray)
-# ax2.set_title('Canny Filter')
-#
-# ax3.axis('off')
-# ax3.imshow(cv_thresh_Mo, cmap=plt.cm.gray)
-# ax3.set_title('Connected')
-#
-# ax4.imshow(blur, cmap=plt.cm.gray)
-# ax4.axis('off')
-# ax4.set_title(' Blurred ')
-#
-# ax5.imshow(cv_thresh_La, cmap=plt.cm.gray)
-# ax5.axis('off')
-# ax5.set_title('Labeled ')
-# plt.show()
+ax1.axis('off')
+ax1.imshow(imRGB, cmap=plt.cm.gray)
+ax1.set_title('Image RGB')
 
+ax2.axis('off')
+ax2.imshow(Canny, cmap=plt.cm.gray)
+ax2.set_title('Canny Filter')
 
-contornos = sm.find_contours(blur,0.25,fully_connected='high')
+ax3.axis('off')
+ax3.imshow(cv_thresh_Mo, cmap=plt.cm.gray)
+ax3.set_title('Connected')
+
+ax4.imshow(blur, cmap=plt.cm.gray)
+ax4.axis('off')
+ax4.set_title(' Blurred ')
+
+ax5.imshow(cv_thresh_La, cmap=plt.cm.gray)
+ax5.axis('off')
+ax5.set_title('Labeled ')
+plt.show()
+
+"""DEFININDO CONTORNOS"""
+contornos = sm.find_contours(blur,0.19,fully_connected='low')
+tamanho_contorno =len(contornos)
 print("Número Contornos Encontrados:", len(contornos))
-aux =len(contornos)
-tamanho = np.empty([aux,2])
 
-for i in range(aux):
-    tamanho[i][0]=contornos[i].shape[0]
-    tamanho[i][1]=i
-    # tamanho.append( contornos[i].shape[0])
-    # indice.append(i)
+#Criando array  com o número de pontos de cada contorno
+tamanho = np.empty([tamanho_contorno])
+for i in range(tamanho_contorno):
+    tamanho[i]=contornos[i].shape[0]
 
-maiores=nlargest(2,tamanho.transpose()[0])
-# values.index(nlargest(2,tamanho))
-#
-print("\nMaiores:", maiores, "\n")
+# Detectando os maiores contornos e seus indices
+maiores=nlargest(2,enumerate(tamanho),key=lambda x: x[1])
+print("\nMaiores:", maiores)
+
+"""PLOTANDO OS CONTORNOS ENCONTRADOS"""
+# fig1, ax = plt.subplots()
+# ax.imshow(imRGB, interpolation='nearest', cmap=plt.cm.gray)
+# for  n, contorno in enumerate(contornos):
+#     print("Número de pontos no Contornos",n+1,":", len(contorno))
+#     if(len(contorno) >=1500):
+#         ax.plot(contorno[:, 1], contorno[:, 0],'-b', linewidth=2)
+#         print("\nCONTORNO DESENHADO:", len(contorno))
+# ax.axis('image')
+# ax.set_xticks([])
+# ax.set_yticks([])
+# plt.show()
 fig1, ax = plt.subplots()
 ax.imshow(imRGB, interpolation='nearest', cmap=plt.cm.gray)
 for  n, contorno in enumerate(contornos):
-    print("Número de pontos no Contornos",n+1,":", len(contorno))
-    if(len(contorno) >=1500):
+    if(n in (np.transpose(np.asanyarray(maiores))[0])):
         ax.plot(contorno[:, 1], contorno[:, 0],'-b', linewidth=2)
         print("\nCONTORNO DESENHADO:", len(contorno))
-        # input()
-        # plt.show()
-        # ax.plot(coords[:, 1], coords[:, 0], '-r', linewidth=2)
-
-
 ax.axis('image')
 ax.set_xticks([])
 ax.set_yticks([])
 plt.show()
-"""CONTINUE ESSA LÓGICA"""
-#Preciso pegar a variável  list contornos e transformar em algo ,
-# de forma que eu possa acessar os ndarrays contidos nela e selecionar os 2 maiores
-# contornos= np.array(contornos)
 
 
 
@@ -106,30 +105,4 @@ plt.show()
 
 
 
-# def segment_fish(image):
-#     ''' Attempts to segment the clownfish out of the provided image '''
-#
-#     # Convert the image into HSV
-#     hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-#
-#     # Set the orange range
-#     light_orange = (1, 190, 200)
-#     dark_orange = (18, 255, 255)
-#
-#     # Apply the orange mask
-#     mask = cv2.inRange(hsv_image, light_orange, dark_orange)
-#
-#     # Set a white range
-#     light_white = (0, 0, 200)
-#     dark_white = (145, 60, 255)
-#
-#     # Apply the white mask
-#     mask_white = cv2.inRange(hsv_image, light_white, dark_white)
-#
-#     # Combine the two masks
-#     final_mask = mask + mask_white
-#     result = cv2.bitwise_and(image, image, mask=final_mask)
-#
-#     # Clean up the segmentation using a blur
-#     blur = cv2.GaussianBlur(result, (7, 7), 0)
-#     return blur
+
