@@ -1,15 +1,16 @@
 import cv2 as cv
 import argparse
-import heapq
+from heapq import nlargest
 import numpy as np
 import skimage.measure as sm
 import matplotlib.pyplot as plt
 from skimage import feature
 import matplotlib.patches as mpatches
 
-
+# tamanho =[]
+# indice=[]
 #Imagem Crua
-src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_1.jpg"
+src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_3.jpg"
 #Li a Imagem
 imgRaw = cv.imread(src)
 imRGB= cv.cvtColor(imgRaw, cv.COLOR_BGR2RGB)
@@ -38,44 +39,56 @@ print("\nLabels Encontrados:", label_num, "\n")
 
 ### EXIBINDO AS FOTOS###
 
-fig, (ax1, ax2,ax3,ax4,ax5) = plt.subplots(1, 5, figsize=(80, 80))
-ax1.axis('off')
-ax1.imshow(imRGB, cmap=plt.cm.gray)
-ax1.set_title('Image RGB')
+# fig, (ax1, ax2,ax3,ax4,ax5) = plt.subplots(1, 5, figsize=(80, 80))
+# ax1.axis('off')
+# ax1.imshow(imRGB, cmap=plt.cm.gray)
+# ax1.set_title('Image RGB')
+#
+# ax2.axis('off')
+# ax2.imshow(Canny, cmap=plt.cm.gray)
+# ax2.set_title('Canny Filter')
+#
+# ax3.axis('off')
+# ax3.imshow(cv_thresh_Mo, cmap=plt.cm.gray)
+# ax3.set_title('Connected')
+#
+# ax4.imshow(blur, cmap=plt.cm.gray)
+# ax4.axis('off')
+# ax4.set_title(' Blurred ')
+#
+# ax5.imshow(cv_thresh_La, cmap=plt.cm.gray)
+# ax5.axis('off')
+# ax5.set_title('Labeled ')
+# plt.show()
 
-ax2.axis('off')
-ax2.imshow(Canny, cmap=plt.cm.gray)
-ax2.set_title('Canny Filter')
 
-ax3.axis('off')
-ax3.imshow(cv_thresh_Mo, cmap=plt.cm.gray)
-ax3.set_title('Connected')
+contornos = sm.find_contours(blur,0.25,fully_connected='high')
+print("Número Contornos Encontrados:", len(contornos))
+aux =len(contornos)
+tamanho = np.empty([aux,2])
 
-ax4.imshow(blur, cmap=plt.cm.gray)
-ax4.axis('off')
-ax4.set_title(' Blurred ')
+for i in range(aux):
+    tamanho[i][0]=contornos[i].shape[0]
+    tamanho[i][1]=i
+    # tamanho.append( contornos[i].shape[0])
+    # indice.append(i)
 
-ax5.imshow(cv_thresh_La, cmap=plt.cm.gray)
-ax5.axis('off')
-ax5.set_title('Labeled ')
-plt.show()
-
-
-contornos = sm.find_contours(blur,0.2,fully_connected='high')
-
+maiores=nlargest(2,tamanho.transpose()[0])
+# values.index(nlargest(2,tamanho))
+#
+print("\nMaiores:", maiores, "\n")
 fig1, ax = plt.subplots()
 ax.imshow(imRGB, interpolation='nearest', cmap=plt.cm.gray)
-# print("\nContornos Encontrados:", len(contornos), "\n")
-
 for  n, contorno in enumerate(contornos):
-    coord = sm.approximate_polygon(contorno, tolerance=40)
-    if(len(coord)>=6 and len(contorno) >=1500 and len(contorno)<=4000):
+    print("Número de pontos no Contornos",n+1,":", len(contorno))
+    if(len(contorno) >=1500):
         ax.plot(contorno[:, 1], contorno[:, 0],'-b', linewidth=2)
+        print("\nCONTORNO DESENHADO:", len(contorno))
         # input()
         # plt.show()
         # ax.plot(coords[:, 1], coords[:, 0], '-r', linewidth=2)
 
-    print("Contornos Encontrados:", len(contorno), len(coord))
+
 ax.axis('image')
 ax.set_xticks([])
 ax.set_yticks([])
@@ -84,7 +97,7 @@ plt.show()
 #Preciso pegar a variável  list contornos e transformar em algo ,
 # de forma que eu possa acessar os ndarrays contidos nela e selecionar os 2 maiores
 # contornos= np.array(contornos)
-# heapq.nlargest(2, contornos)
+
 
 
 
