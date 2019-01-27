@@ -3,6 +3,7 @@ from heapq import nlargest
 import numpy as np
 import skimage.measure as sm
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 from skimage import feature,morphology
 
 """CAPTURA DE  IMAGEM"""
@@ -34,7 +35,7 @@ kernel = np.ones((block_size, block_size), np.uint8)
 Canny_Connectado = cv.morphologyEx(Canny_Closing, cv.MORPH_CLOSE, kernel)
 # Inserindo Labels
 Canny_Labeled, label_num, = sm.label(Canny_Connectado, return_num=1, connectivity=1)
-print("\nLabels Encontrados Imagem Final:", label_num, "\n")
+print("\nLabels Encontrados Imagem Final:", label_num)
 if (label_num>50):
     # Definindo parêmetro 'selem' referente a conectividade
     forma_dilation = morphology.disk(2)
@@ -83,23 +84,36 @@ plt.show()
 """SCIKIT - DEFININDO CONTORNOS"""
 contornos = sm.find_contours(Canny_Labeled,0.19,fully_connected='low')
 tamanho_contorno =len(contornos)
-print("Número Contornos Encontrados:", len(contornos))
-
+print("Número de Contornos Encontrados:", len(contornos))
 #Criando array  com o número de pontos de cada contorno
 tamanho = np.empty([tamanho_contorno])
 for i in range(tamanho_contorno):
     tamanho[i]=contornos[i].shape[0]
-
 #Detectando os N maiores contornos e seus indices, alterando N , os N maiores contornos serão desenhados
-maiores=nlargest(1,enumerate(tamanho),key=lambda x: x[1])
-print("\nMaiores:", maiores)
+maiores=nlargest(1,enumerate(tamanho),key=lambda a: a[1])
 
-"""ANÁLISE DE AREA"""
-#Convertendo o valor  dado pelo scikit find contour para funcionar com a função de achar área do contorno do OpenCV
-Area = cv.contourArea(np.around(np.array([[pt] for pt in contornos[maiores[0][0]]]).astype(np.int32)))
-print("\nArea:", Area)
+#  Convertendo o valor  dado pelo scikit find contour para funcionar com a função de achar área do contorno do OpenCV
+contorno_cv = np.around(np.array([[pt] for pt in contornos[maiores[0][0]]]).astype(np.int32))
+
+"""DEFINIÇÃO SIZE - CATEGORIA: TAMANHO[PMG]"""
+## Área ##
+area = cv.contourArea(contorno_cv)
+print("Area:", area)
 #***IMPORTANTE: Na análise feita cortando as fotos o valor da área muda bem pouco.Essa mudança apenas ocorre pois o código pega um contorno levemente diferente.
 #***IMPORTANTE: No entanto se for feito RESIZE o valor MUDA TOTALMENTE![Creio que na mesma proporção que foi feito o RESIZE]
+
+## Raio ##
+# Determinando um círculo que passe pelo contorno
+((x, y), raio)= cv.minEnclosingCircle(contorno_cv)
+centroide = (int(x),int(y))
+raio = int(raio)
+print("Raio:", raio,"\nCentro:",centroide)
+
+## Diâmetro -Pela Area e pelo Raio ##
+diametro_area = np.sqrt(4*area/np.pi)
+diametro_raio = 2*raio
+print("Diametro_area [pixel]:", diametro_area,"\nDiametro_raio[pixel]:",diametro_raio)
+#TODO: DESCOBRIR COMO PASSAR DE PIXEL PARA MM
 
 """PLOTANDO OS CONTORNOS ENCONTRADOS"""
 fig1, ax = plt.subplots()
@@ -107,18 +121,23 @@ ax.imshow(imRGB, interpolation='nearest', cmap=plt.cm.gray)
 for  n, contorno in enumerate(contornos):
     if(n in (np.transpose(np.asanyarray(maiores))[0])):
         ax.plot(contorno[:, 1], contorno[:, 0],'-b', linewidth=2)
-        print("\nCONTORNO DESENHADO:", len(contorno))
+#Plotando o círculo achando no item anterior
+circulo = mpatches.Circle((x,y),raio,fill=False, edgecolor='red', linewidth=2)
+ax.add_patch(circulo)
 ax.axis('image')
+ax.set_title('Contorno e Círculo')
 ax.set_xticks([])
 ax.set_yticks([])
 plt.show()
 
+""" DEFINIÇÃO TEXTURE - CATEGORIA: POROSIDADE[LISO/ÁSPERO]"""
+#TODO:APRENDER GLCM
+#http://scikit-image.org/docs/0.7.0/api/skimage.feature.texture.html#id2
+#http://www.iraj.in/journal/journal_file/journal_pdf/6-251-146338931627-31.pdf
 
-
-
-
-
-
-
+"""DEFINIÇÃO COLOR - CATEGORIA: DEFEITO[SEM/COM]"""
+#TODO:DEFINIR UMA PORCENTAGEM DE COR MARROM/BRANCA/AMARELA QUEM DEFINE DEFEITO MUITOGRA/GRAVE
+#TODO:[TCC] TORNAR ESTE CÓDIGO FUNÇÃO  E CRIAR OS ARQUIVOS SERVER.PY - ACTIVATECLP.PY - WRITEELASTIC.PY
+#TODO:[ARTIGO] APRENDER NEURAL NETWORKS,RANDOM FOREST,SVM
 
 
