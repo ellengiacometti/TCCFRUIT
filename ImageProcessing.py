@@ -4,11 +4,12 @@ import numpy as np
 import skimage.measure as sm
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import mahotas as mt
 from skimage import feature,morphology
 
 """CAPTURA DE  IMAGEM"""
 # Li a Imagem
-src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_16_1.jpg"
+src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/TEXTURA _RUGOSO.jpg"
 # Imagem Crua
 imgRaw = cv.imread(src)
 # Imagem em RGB
@@ -19,7 +20,7 @@ im = cv.cvtColor(imgRaw, cv.COLOR_BGR2GRAY)
 """PROCESSANDO IMAGEM"""
 # Filtro Canny
 Canny = feature.canny(im, sigma=0.1)
-# Definindo parêmetro selem referente a conectividade
+#Definindo parêmetro selem referente a conectividade
 forma_dilation= morphology.disk(1)
 # Morfologia dilation remover rachaduras
 Canny_Dilation= morphology.dilation(Canny,forma_dilation)
@@ -131,11 +132,22 @@ ax.set_yticks([])
 plt.show()
 
 """ DEFINIÇÃO TEXTURE - CATEGORIA: POROSIDADE[LISO/ÁSPERO]"""
+
+# calculate haralick texture features for 4 types of adjacency
+texturas = mt.features.haralick(im)
+texturas1 = mt.features.lbp(im,6,8)
+	# take the mean of it and return it
+ht_mean  = texturas.mean(axis=0)
+print("Ht_Mean:", ht_mean)
+print("LBP:", texturas1)
+
 #TODO:APRENDER GLCM
 #http://scikit-image.org/docs/0.7.0/api/skimage.feature.texture.html#id2
 #http://www.iraj.in/journal/journal_file/journal_pdf/6-251-146338931627-31.pdf
 
 """DEFINIÇÃO COLOR - CATEGORIA: DEFEITO[SEM/COM]"""
+
+
 #TODO:DEFINIR UMA PORCENTAGEM DE COR MARROM/BRANCA/AMARELA QUEM DEFINE DEFEITO MUITOGRA/GRAVE
 #TODO:[TCC] TORNAR ESTE CÓDIGO FUNÇÃO  E CRIAR OS ARQUIVOS SERVER.PY - ACTIVATECLP.PY - WRITEELASTIC.PY
 #TODO:[ARTIGO] APRENDER NEURAL NETWORKS,RANDOM FOREST,SVM
