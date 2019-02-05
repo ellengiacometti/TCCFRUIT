@@ -143,7 +143,7 @@ ht_mean  = texturas.mean(axis=0)
 print("Ht_Mean:", ht_mean)
 print("LBP:", texturas1)
 
-#TODO:kurtosis skewness
+
 #http://scikit-image.org/docs/0.7.0/api/skimage.feature.texture.html#id2
 #http://www.iraj.in/journal/journal_file/journal_pdf/6-251-146338931627-31.pdf
 
