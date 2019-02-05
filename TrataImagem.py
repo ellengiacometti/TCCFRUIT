@@ -1,39 +1,35 @@
-"""Author: Ellen Giacometti
-CRIADO EM: 21/12/2018
-DESC:Código que recebe uma imagem faz A PORR* TODA """
 import cv2 as cv
 import argparse
 import numpy as np
-import skimage.measure as sm
 import matplotlib.pyplot as plt
 from heapq import nlargest
 import matplotlib.patches as mpatches
 from scipy.stats import kurtosis, skew
 
-
-""""""
-
 def TrataImagem(src):
-
-    " ""LENDO IMAGEM """
-        # Lendo Imagem
+    """Author: Ellen Giacometti
+    CRIADO EM: 21/12/2018
+    ÚLTIMA ATUALIZAÇÃO: 05/02/2019
+    DESC: Código que recebe uma imagem e extrai os Atributos do limão contido nela"""
+    """LENDO IMAGEM """
+    # Lendo Imagem
     img = cv.imread(src)
     # Convertendo canal HSV
     imgHSV = cv.cvtColor(img, cv.COLOR_BGR2HSV)
     # Separando o canal de saturação
     h, s, v = cv.split(imgHSV)
     """ EXIBINDO CANAIS """
-    fig1, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(10, 5), sharex=True, sharey=True)
-    ax1.axis('off')
-    ax1.imshow(h, cmap=plt.cm.gray)
-    ax1.set_title(' h IMAGE')
-    ax2.axis('off')
-    ax2.imshow(s, cmap=plt.cm.gray)
-    ax2.set_title('s IMAGE')
-    ax3.axis('off')
-    ax3.imshow(v, cmap=plt.cm.gray)
-    ax3.set_title('v  IMAGE')
-    plt.show()
+    # fig1, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(10, 5), sharex=True, sharey=True)
+    # ax1.axis('off')
+    # ax1.imshow(h, cmap=plt.cm.gray)
+    # ax1.set_title(' h IMAGE')
+    # ax2.axis('off')
+    # ax2.imshow(s, cmap=plt.cm.gray)
+    # ax2.set_title('s IMAGE')
+    # ax3.axis('off')
+    # ax3.imshow(v, cmap=plt.cm.gray)
+    # ax3.set_title('v  IMAGE')
+    # plt.show()
     """ PROCESSAMENTO DA IMAGEM """
      # Filtro para borrar
     s_Blur = cv.blur(s,(5,5))
@@ -46,8 +42,24 @@ def TrataImagem(src):
     s_Closing = cv.morphologyEx(s_Thresh, cv.MORPH_CLOSE, kernel)
     # Resultado da Máscara em RGB
     s_Result = cv.bitwise_and(cv.cvtColor(img, cv.COLOR_BGR2RGB), cv.cvtColor(img, cv.COLOR_BGR2RGB), mask=s_Closing)
+    """PRINTANDO IMAGENS DO PROCESSO"""
+    fig, (ax1, ax2,ax3,ax4) = plt.subplots(1, 4, figsize=(10, 5), sharex=True, sharey=True)
+    ax1.axis('off')
+    ax1.imshow(s_Blur, cmap=plt.cm.gray)
+    ax1.set_title('s_Blur ')
+    ax2.axis('off')
+    ax2.imshow(s_Thresh, cmap=plt.cm.gray)
+    ax2.set_title('s_Thresh')
+    ax3.axis('off')
+    ax3.imshow(s_Closing, cmap=plt.cm.gray)
+    ax3.set_title('s_Closing')
+    ax4.axis('off')
+    ax4.imshow(s_Result, cmap=plt.cm.gray)
+    ax4.set_title('s_Result')
+    plt.show()
+
     """ CRIANDO ROI """
-        # Declarando variável BoundingBox
+    # Declarando variável BoundingBox
     BoundingBox = np.zeros_like(img)
     BoundingBox[s_Closing == 255] = img[s_Closing == 255]
     # Definindo pontos para corte
@@ -84,6 +96,14 @@ def TrataImagem(src):
     centroide = (int(x), int(y))
     print("\n---~ SIZE & SHAPE - CIRCUNFERÊNCIA ~---")
     print("Raio:", raio, "\nCentro:", centroide)
+    """HISTOGRAMA DO CANAL H"""
+    # Mudando os canais da ROI
+    HSV_BoundingBox = cv.cvtColor(BoundingBox, cv.COLOR_BGR2HSV)
+    # Separando o canal de saturação
+    h_BoundingBox, _, _ = cv.split(HSV_BoundingBox)
+    # Realizando Histograma da ROI
+    hist = cv.calcHist(h_BoundingBox, [0], None, [180], [0, 179])
+    """DEBUG VERSION """
     """DESENHANDO O CONTORNO E A CIRCUNFERÊNCIA"""
     fig2, ax = plt.subplots()
     ax.imshow(gray_BoundingBox, interpolation='nearest', cmap=plt.cm.gray)
@@ -93,52 +113,32 @@ def TrataImagem(src):
             circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
             ax.add_patch(circulo)
     plt.show()
-    """DEBUG VERSION - PRINTANDO IMAGENS DO PROCESSO"""
-    # fig, (ax1, ax2,ax3,ax4) = plt.subplots(1, 4, figsize=(10, 5), sharex=True, sharey=True)
-    # ax1.axis('off')
-    # ax1.imshow(s_Blur, cmap=plt.cm.gray)
-    # ax1.set_title('s_Blur ')
-    # ax2.axis('off')
-    # ax2.imshow(s_Thresh, cmap=plt.cm.gray)
-    # ax2.set_title('s_Thresh')
-    # ax3.axis('off')
-    # ax3.imshow(s_Closing, cmap=plt.cm.gray)
-    # ax3.set_title('s_Closing')
-    # ax4.axis('off')
-    # ax4.imshow(s_Result, cmap=plt.cm.gray)
-    # ax4.set_title('s_Result')
-    # plt.show()
 
-    """HISTOGRAMA DO CANAL H"""
-    HSV_BoundingBox= cv.cvtColor(BoundingBox, cv.COLOR_BGR2HSV)
-    # Separando o canal de saturação
-    ##TODO: CHECAR SE O HISTOGRAMA H é da ROI OU NÃO
-    hist = cv.calcHist(h,[0],None,[180],[0,179])
-    # hist = cv.calcHist(h, [0], None, [180], [0, 179])
+    """DESENHANDO HISTOGRAMA"""
     plt.figure()
     plt.title("H Histogram")
     plt.xlabel("Bins")
     plt.ylabel("# of Pixels")
     plt.plot(hist)
-    plt.xlim([0, 255])
+    plt.xlim([0, 179])
     plt.show()
-    print("\n---~ COLOR ~---")
-    print("Hist:", np.argmax(hist))
-
     """TEXTURA:KURTOSIS & SKEWNESS"""
-
     texture_Kurt=kurtosis(gray_BoundingBox, axis=None)
     texture_Skew=skew(gray_BoundingBox, axis=None)
     print("\n---~ TEXTURE ~---")
     print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
+    return  [x,y,raio,hist,texture_Kurt,texture_Skew]
 
 if __name__ == '__main__':
+
     """PARÂMETROS"""
     ap = argparse.ArgumentParser()
     ap.add_argument("-i", "--path", required=True, help="path to the input image")
     args = vars(ap.parse_args())
     imageDir_val= args["path"]
-    TrataImagem(imageDir_val)
+
+    Atributos = []
+    Atributos.append(TrataImagem(imageDir_val))
 
 
 
