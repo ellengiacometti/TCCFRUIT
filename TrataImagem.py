@@ -1,109 +1,136 @@
 """Author: Ellen Giacometti
 CRIADO EM: 21/12/2018
-DESC:Código que recebe uma imagem faz o tratamento morfológico e recorta a ROI """
+DESC:Código que recebe uma imagem faz A PORR* TODA """
 import cv2 as cv
 import argparse
 import numpy as np
 import skimage.measure as sm
 import matplotlib.pyplot as plt
+from heapq import nlargest
 import matplotlib.patches as mpatches
-from skimage.filters import roberts
+from scipy.stats import kurtosis, skew
 
 
+""""""
 
 def TrataImagem(src):
-    label_num_valid =0
 
-    """LENDO IMAGEM - TRATAMENTO INICIAL"""
-    imgRaw = cv.imread(src)
-    img= cv.cvtColor(imgRaw, cv.COLOR_BGR2RGB)
-    resized = cv.resize(img, (500, 500))
-    """SEPARANDO A  MASCARA ONDE TEM AS CORES DE INTERESSE"""
-    ##Faixa da cor a ser cortada
-    # remover
-    # Faixa de Cinza - 119 132 108 - 120 120 120
-    boundaries = [([0, 72, 0], [119, 132, 108])]
-    boundaries1 = [([120, 120, 120], [178, 255, 175])]
-    for (lower, upper) in boundaries:
-        # create NumPy arrays from the boundaries
-        lower = np.array(lower, dtype="uint8")
-        upper = np.array(upper, dtype="uint8")
-        # find the colors within the specified boundaries and apply
-        # the mask
-        mask1 = cv.inRange(resized, lower, upper)
-
-    for (baixo, cima) in boundaries1:
-        # create NumPy arrays from the boundaries
-        baixo = np.array(baixo, dtype="uint8")
-        cima = np.array(cima, dtype="uint8")
-        # find the colors within the specified boundaries and apply
-        # the mask
-        mask2 = cv.inRange(resized, baixo, cima)
-        # Visualiza a Máscara em cima da foto real
-    mask = mask1 + mask2
-    output = cv.bitwise_and(resized, resized, mask=mask)
-    gray = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
-    edge_roberts = roberts(gray) > 0.01
-    # """THRESHOLDING USANDO OPENCV"""
-    # cv_thresh = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 151, 3)
-    """MORFOLOGIA CLOSING"""
-    block_size = 12
-    kernel = np.ones((block_size, block_size), np.uint8)
-    cv_thresh_Mo = cv.morphologyEx(mask, cv.MORPH_CLOSE, kernel)
-
-    """CONECTANDO OS ELEMENTOS DAS IMAGENS BINÁRIAS"""
-    cv_thresh_La,label_num, = sm.label(cv_thresh_Mo,return_num=1,connectivity=1)
-    print("\nLabels Encontrados:", label_num ,"\n")
-
-    """Teste de Resize para Melhora de Performance"""
-    # TST = st.resize(cv_thresh_Mo, (1000,100))
-    # cv_thresh_La, label_num, = sm.label(TST, return_num=1, connectivity=1.5)
-
-    """DEBUG VERSION - PRINTANDO IMAGENS"""
-    fig, (ax1, ax2,ax3) = plt.subplots(1, 3, figsize=(40,40), sharex=True, sharey=True)
+    " ""LENDO IMAGEM """
+        # Lendo Imagem
+    img = cv.imread(src)
+    # Convertendo canal HSV
+    imgHSV = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+    # Separando o canal de saturação
+    h, s, v = cv.split(imgHSV)
+    """ EXIBINDO CANAIS """
+    fig1, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(10, 5), sharex=True, sharey=True)
     ax1.axis('off')
-    ax1.imshow(gray, cmap=plt.cm.gray)
-    ax1.set_title('THRESHED IMAGE')
+    ax1.imshow(h, cmap=plt.cm.gray)
+    ax1.set_title(' h IMAGE')
     ax2.axis('off')
-    ax2.imshow(mask, cmap=plt.cm.gray)
-    ax2.set_title('LABELED & CONNECTED IMAGE')
+    ax2.imshow(s, cmap=plt.cm.gray)
+    ax2.set_title('s IMAGE')
     ax3.axis('off')
-    ax3.imshow(cv_thresh_La, cmap=plt.cm.gray)
-    ax3.set_title('LABELED & CONNECTED IMAGE')
+    ax3.imshow(v, cmap=plt.cm.gray)
+    ax3.set_title('v  IMAGE')
     plt.show()
-
-
-    """Contornos"""
-    contornos = sm.find_contours(cv_thresh_La, 0.5)
-    fig1, ax = plt.subplots()
-    ax.imshow(resized, interpolation='nearest', cmap=plt.cm.gray)
-
-    for n, contorno in enumerate(contornos):
-        ax.plot(contorno[:, 1], contorno[:, 0], linewidth=2)
-
-    ax.axis('image')
-    ax.set_xticks([])
-    ax.set_yticks([])
+    """ PROCESSAMENTO DA IMAGEM """
+     # Filtro para borrar
+    s_Blur = cv.blur(s,(5,5))
+    # Binarizando a imagem
+    _, s_Thresh = cv.threshold(s_Blur,40,255,cv.THRESH_BINARY)
+    # Morfologia tamanho do elemento estrutural
+    block_size = 30
+    kernel = np.ones((block_size, block_size), np.uint8)
+    # Executando Dilation e Closing
+    s_Closing = cv.morphologyEx(s_Thresh, cv.MORPH_CLOSE, kernel)
+    # Resultado da Máscara em RGB
+    s_Result = cv.bitwise_and(cv.cvtColor(img, cv.COLOR_BGR2RGB), cv.cvtColor(img, cv.COLOR_BGR2RGB), mask=s_Closing)
+    """ CRIANDO ROI """
+        # Declarando variável BoundingBox
+    BoundingBox = np.zeros_like(img)
+    BoundingBox[s_Closing == 255] = img[s_Closing == 255]
+    # Definindo pontos para corte
+    (x, y) = np.where(s_Closing == 255)
+    (topx, topy) = (np.min(x), np.min(y))
+    (bottomx, bottomy) = (np.max(x), np.max(y))
+    # Desprezando a imagem ao redor dos pontos
+    BoundingBox = BoundingBox[topx:bottomx + 1, topy:bottomy + 1]
+    # Convertendo para cinza
+    gray_BoundingBox = cv.cvtColor(BoundingBox, cv.COLOR_RGB2GRAY)
+    """ CONTORNO OPENCV """
+    # Capturando contornos
+    _, contornosCV, _ = cv.findContours(gray_BoundingBox, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+    # Adquirindo o número de contornos encontrados
+    tamanho_contornoCV = len(contornosCV)
+    print("\n---~ INFO CONTORNO DO LIMÃO ~---")
+    print("Número de Contornos Encontrados na Imagem:", tamanho_contornoCV)
+    # Declarando um array para armazenar o tamanho de cada contorno
+    tamanhoCV = np.empty([tamanho_contornoCV])
+    for i in range(tamanho_contornoCV):
+        # Adquirindo o tamanho de cada contorno encontrado
+        tamanhoCV[i] = contornosCV[i].shape[0]
+    # Detectando os N maiores contornos e seus indices, alterando N , os N maiores contornos serão armazenados.
+    maioresCV = nlargest(1, enumerate(tamanhoCV), key=lambda a: a[1])
+    print("Perímetro:", maioresCV[0][1])
+    """ MEDIDAS LIMÃO - CONTORNO ÚTIL """
+    contorno_util=contornosCV[maioresCV[0][0]]
+    M = cv.moments(contorno_util)
+    cx = int(M['m10'] / M['m00'])
+    cy = int(M['m01'] / M['m00'])
+    print("Centróide Limão:(",cx ,",",cy,")")
+    """MEDIDAS CIRCUNFERÊNCIA CIRCUNSCRITA"""
+    ((x, y), raio) = cv.minEnclosingCircle(contorno_util)
+    centroide = (int(x), int(y))
+    print("\n---~ SIZE & SHAPE - CIRCUNFERÊNCIA ~---")
+    print("Raio:", raio, "\nCentro:", centroide)
+    """DESENHANDO O CONTORNO E A CIRCUNFERÊNCIA"""
+    fig2, ax = plt.subplots()
+    ax.imshow(gray_BoundingBox, interpolation='nearest', cmap=plt.cm.gray)
+    for n, contornoCV in enumerate(contornosCV):
+        if (n in (np.transpose(np.asanyarray(maioresCV))[:])):
+            ax.plot(contornoCV[:, 0][:, 0], contornoCV[:, 0][:, 1], '-b', linewidth=2)
+            circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
+            ax.add_patch(circulo)
     plt.show()
-    """Area"""
-    fig2, ax = plt.subplots(figsize=(10, 6))
-    ax.imshow(resized)
-    prop_region = sm.regionprops(cv_thresh_La)
-    ###Loop pelas Regiões checando parâmetros destas afim de filtrar só as regions onde possivelmente tenham frutas
-    for region in prop_region:
-        """ANALISANDO O  NÚMERO DE BBOX"""
-        if (label_num != 1 and region.area >=200):
-        # if (label_num != 1 and region.filled_area >= 500000):
-            label_num_valid = label_num_valid + 1
-            """DEBUG VERSION - MARCANDO BBOX"""
-            minr, minc, maxr, maxc = region.bbox
-            rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr,fill=False, edgecolor='red', linewidth=2)
-            ax.add_patch(rect)
-            pic=cv_thresh_La[int(region.bbox[0]):int(region.bbox[2]), int(region.bbox[1]):int(region.bbox[3])]
-    ax.set_axis_off()
-    plt.tight_layout()
-    print("Labels Válidos:", label_num_valid, "\n")
+    """DEBUG VERSION - PRINTANDO IMAGENS DO PROCESSO"""
+    # fig, (ax1, ax2,ax3,ax4) = plt.subplots(1, 4, figsize=(10, 5), sharex=True, sharey=True)
+    # ax1.axis('off')
+    # ax1.imshow(s_Blur, cmap=plt.cm.gray)
+    # ax1.set_title('s_Blur ')
+    # ax2.axis('off')
+    # ax2.imshow(s_Thresh, cmap=plt.cm.gray)
+    # ax2.set_title('s_Thresh')
+    # ax3.axis('off')
+    # ax3.imshow(s_Closing, cmap=plt.cm.gray)
+    # ax3.set_title('s_Closing')
+    # ax4.axis('off')
+    # ax4.imshow(s_Result, cmap=plt.cm.gray)
+    # ax4.set_title('s_Result')
+    # plt.show()
+
+    """HISTOGRAMA DO CANAL H"""
+    HSV_BoundingBox= cv.cvtColor(BoundingBox, cv.COLOR_BGR2HSV)
+    # Separando o canal de saturação
+    ##TODO: CHECAR SE O HISTOGRAMA H é da ROI OU NÃO
+    hist = cv.calcHist(h,[0],None,[180],[0,179])
+    # hist = cv.calcHist(h, [0], None, [180], [0, 179])
+    plt.figure()
+    plt.title("H Histogram")
+    plt.xlabel("Bins")
+    plt.ylabel("# of Pixels")
+    plt.plot(hist)
+    plt.xlim([0, 255])
     plt.show()
+    print("\n---~ COLOR ~---")
+    print("Hist:", np.argmax(hist))
+
+    """TEXTURA:KURTOSIS & SKEWNESS"""
+
+    texture_Kurt=kurtosis(gray_BoundingBox, axis=None)
+    texture_Skew=skew(gray_BoundingBox, axis=None)
+    print("\n---~ TEXTURE ~---")
+    print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
 
 if __name__ == '__main__':
     """PARÂMETROS"""

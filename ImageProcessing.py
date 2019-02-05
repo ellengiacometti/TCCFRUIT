@@ -9,15 +9,17 @@ from skimage import feature,morphology
 
 """CAPTURA DE  IMAGEM"""
 # Li a Imagem
-src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/TEXTURA _RUGOSO.jpg"
+src = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM/LM_1.jpg"
 # Imagem Crua
 imgRaw = cv.imread(src)
+
+
+"""PROCESSANDO IMAGEM"""
+
 # Imagem em RGB
 imRGB= cv.cvtColor(imgRaw, cv.COLOR_BGR2RGB)
 # Imagem em cinza
 im = cv.cvtColor(imgRaw, cv.COLOR_BGR2GRAY)
-
-"""PROCESSANDO IMAGEM"""
 # Filtro Canny
 Canny = feature.canny(im, sigma=0.1)
 #Definindo parêmetro selem referente a conectividade
@@ -141,14 +143,13 @@ ht_mean  = texturas.mean(axis=0)
 print("Ht_Mean:", ht_mean)
 print("LBP:", texturas1)
 
-#TODO:APRENDER GLCM
+#TODO:kurtosis skewness
 #http://scikit-image.org/docs/0.7.0/api/skimage.feature.texture.html#id2
 #http://www.iraj.in/journal/journal_file/journal_pdf/6-251-146338931627-31.pdf
 
 """DEFINIÇÃO COLOR - CATEGORIA: DEFEITO[SEM/COM]"""
 
 
-#TODO:DEFINIR UMA PORCENTAGEM DE COR MARROM/BRANCA/AMARELA QUEM DEFINE DEFEITO MUITOGRA/GRAVE
 #TODO:[TCC] TORNAR ESTE CÓDIGO FUNÇÃO  E CRIAR OS ARQUIVOS SERVER.PY - ACTIVATECLP.PY - WRITEELASTIC.PY
 #TODO:[ARTIGO] APRENDER NEURAL NETWORKS,RANDOM FOREST,SVM
 
