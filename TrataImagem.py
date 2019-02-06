@@ -34,7 +34,7 @@ def TrataImagem(src):
      # Filtro para borrar
     s_Blur = cv.blur(s,(5,5))
     # Binarizando a imagem
-    _, s_Thresh = cv.threshold(s_Blur,40,255,cv.THRESH_BINARY)
+    _, s_Thresh = cv.threshold(s_Blur,50,255,cv.THRESH_BINARY)
     # Morfologia tamanho do elemento estrutural
     block_size = 30
     kernel = np.ones((block_size, block_size), np.uint8)
@@ -96,8 +96,18 @@ def TrataImagem(src):
     HSV_BoundingBox = cv.cvtColor(BoundingBox, cv.COLOR_BGR2HSV)
     # Separando o canal de saturação
     h_BoundingBox, _, _ = cv.split(HSV_BoundingBox)
+    # Exibindo Canal H
+    # fig4, (ax1,ax2) = plt.subplots(1, 2, figsize=(10, 5), sharex=True, sharey=True)
+    # ax1.axis('off')
+    # ax1.imshow(h, cmap=plt.cm.gray)
+    # ax1.set_title('h')
+    # ax2.axis('off')
+    # ax2.imshow(s_Closing, cmap=plt.cm.gray)
+    # ax2.set_title('s_Closing')
+    # plt.show()
     # Realizando Histograma da ROI
-    hist = cv.calcHist(h_BoundingBox, [0], None, [180], [0, 179])
+    # hist = cv.calcHist(h_BoundingBox, [0], None, [256], [0, 256])
+    hist = cv.calcHist([h], [0], s_Closing, [256], [0, 256])
     """ TEXTURA:KURTOSIS & SKEWNESS """
     texture_Kurt = kurtosis(gray_BoundingBox, axis=None)
     texture_Skew = skew(gray_BoundingBox, axis=None)
@@ -117,7 +127,7 @@ def TrataImagem(src):
     # plt.xlabel("Bins")
     # plt.ylabel("# of Pixels")
     # plt.plot(hist)
-    # plt.xlim([0, 179])
+    # plt.xlim([0, 256])
     # plt.show()
     # """GERANDO RELATÓRIO """
     # print("\n---~ INFORMAÇÕES - CONTORNO DO LIMÃO ~---")
@@ -128,6 +138,7 @@ def TrataImagem(src):
     # print("Raio:", raio, "\nCentro:", centroide)
     # print("\n---~ TEXTURE - KURTOSIS SKEWNESS~---")
     # print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
+
     return  [[x,y,raio],hist,[texture_Kurt,texture_Skew]]
 
 if __name__ == '__main__':
