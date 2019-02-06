@@ -11,7 +11,7 @@ def TrataImagem(src):
     CRIADO EM: 21/12/2018
     ÚLTIMA ATUALIZAÇÃO: 05/02/2019
     DESC: Código que recebe uma imagem e extrai os Atributos do limão contido nela"""
-    """LENDO IMAGEM """
+    """ LENDO IMAGEM """
     # Lendo Imagem
     img = cv.imread(src)
     # Convertendo canal HSV
@@ -42,22 +42,21 @@ def TrataImagem(src):
     s_Closing = cv.morphologyEx(s_Thresh, cv.MORPH_CLOSE, kernel)
     # Resultado da Máscara em RGB
     s_Result = cv.bitwise_and(cv.cvtColor(img, cv.COLOR_BGR2RGB), cv.cvtColor(img, cv.COLOR_BGR2RGB), mask=s_Closing)
-    """PRINTANDO IMAGENS DO PROCESSO"""
-    fig, (ax1, ax2,ax3,ax4) = plt.subplots(1, 4, figsize=(10, 5), sharex=True, sharey=True)
-    ax1.axis('off')
-    ax1.imshow(s_Blur, cmap=plt.cm.gray)
-    ax1.set_title('s_Blur ')
-    ax2.axis('off')
-    ax2.imshow(s_Thresh, cmap=plt.cm.gray)
-    ax2.set_title('s_Thresh')
-    ax3.axis('off')
-    ax3.imshow(s_Closing, cmap=plt.cm.gray)
-    ax3.set_title('s_Closing')
-    ax4.axis('off')
-    ax4.imshow(s_Result, cmap=plt.cm.gray)
-    ax4.set_title('s_Result')
-    plt.show()
-
+    """ PRINTANDO IMAGENS DO PROCESSO   """
+    # fig, (ax1, ax2,ax3,ax4) = plt.subplots(1, 4, figsize=(10, 5), sharex=True, sharey=True)
+    # ax1.axis('off')
+    # ax1.imshow(s_Blur, cmap=plt.cm.gray)
+    # ax1.set_title('s_Blur ')
+    # ax2.axis('off')
+    # ax2.imshow(s_Thresh, cmap=plt.cm.gray)
+    # ax2.set_title('s_Thresh')
+    # ax3.axis('off')
+    # ax3.imshow(s_Closing, cmap=plt.cm.gray)
+    # ax3.set_title('s_Closing')
+    # ax4.axis('off')
+    # ax4.imshow(s_Result, cmap=plt.cm.gray)
+    # ax4.set_title('s_Result')
+    # plt.show()
     """ CRIANDO ROI """
     # Declarando variável BoundingBox
     BoundingBox = np.zeros_like(img)
@@ -75,8 +74,6 @@ def TrataImagem(src):
     _, contornosCV, _ = cv.findContours(gray_BoundingBox, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
     # Adquirindo o número de contornos encontrados
     tamanho_contornoCV = len(contornosCV)
-    print("\n---~ INFO CONTORNO DO LIMÃO ~---")
-    print("Número de Contornos Encontrados na Imagem:", tamanho_contornoCV)
     # Declarando um array para armazenar o tamanho de cada contorno
     tamanhoCV = np.empty([tamanho_contornoCV])
     for i in range(tamanho_contornoCV):
@@ -84,50 +81,54 @@ def TrataImagem(src):
         tamanhoCV[i] = contornosCV[i].shape[0]
     # Detectando os N maiores contornos e seus indices, alterando N , os N maiores contornos serão armazenados.
     maioresCV = nlargest(1, enumerate(tamanhoCV), key=lambda a: a[1])
-    print("Perímetro:", maioresCV[0][1])
-    """ MEDIDAS LIMÃO - CONTORNO ÚTIL """
+
+    """ MEDIDAS LIMÃO - CONTORNO ÚTIL   """
     contorno_util=contornosCV[maioresCV[0][0]]
     M = cv.moments(contorno_util)
     cx = int(M['m10'] / M['m00'])
     cy = int(M['m01'] / M['m00'])
-    print("Centróide Limão:(",cx ,",",cy,")")
-    """MEDIDAS CIRCUNFERÊNCIA CIRCUNSCRITA"""
+
+    """ MEDIDAS CIRCUNFERÊNCIA CIRCUNSCRITA """
     ((x, y), raio) = cv.minEnclosingCircle(contorno_util)
     centroide = (int(x), int(y))
-    print("\n---~ SIZE & SHAPE - CIRCUNFERÊNCIA ~---")
-    print("Raio:", raio, "\nCentro:", centroide)
-    """HISTOGRAMA DO CANAL H"""
+    """ HISTOGRAMA DO CANAL H   """
     # Mudando os canais da ROI
     HSV_BoundingBox = cv.cvtColor(BoundingBox, cv.COLOR_BGR2HSV)
     # Separando o canal de saturação
     h_BoundingBox, _, _ = cv.split(HSV_BoundingBox)
     # Realizando Histograma da ROI
     hist = cv.calcHist(h_BoundingBox, [0], None, [180], [0, 179])
+    """ TEXTURA:KURTOSIS & SKEWNESS """
+    texture_Kurt = kurtosis(gray_BoundingBox, axis=None)
+    texture_Skew = skew(gray_BoundingBox, axis=None)
     """DEBUG VERSION """
     """DESENHANDO O CONTORNO E A CIRCUNFERÊNCIA"""
-    fig2, ax = plt.subplots()
-    ax.imshow(gray_BoundingBox, interpolation='nearest', cmap=plt.cm.gray)
-    for n, contornoCV in enumerate(contornosCV):
-        if (n in (np.transpose(np.asanyarray(maioresCV))[:])):
-            ax.plot(contornoCV[:, 0][:, 0], contornoCV[:, 0][:, 1], '-b', linewidth=2)
-            circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
-            ax.add_patch(circulo)
-    plt.show()
-
-    """DESENHANDO HISTOGRAMA"""
-    plt.figure()
-    plt.title("H Histogram")
-    plt.xlabel("Bins")
-    plt.ylabel("# of Pixels")
-    plt.plot(hist)
-    plt.xlim([0, 179])
-    plt.show()
-    """TEXTURA:KURTOSIS & SKEWNESS"""
-    texture_Kurt=kurtosis(gray_BoundingBox, axis=None)
-    texture_Skew=skew(gray_BoundingBox, axis=None)
-    print("\n---~ TEXTURE ~---")
-    print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
-    return  [x,y,raio,hist,texture_Kurt,texture_Skew]
+    # fig2, ax = plt.subplots()
+    # ax.imshow(gray_BoundingBox, interpolation='nearest', cmap=plt.cm.gray)
+    # for n, contornoCV in enumerate(contornosCV):
+    #     if (n in (np.transpose(np.asanyarray(maioresCV))[:])):
+    #         ax.plot(contornoCV[:, 0][:, 0], contornoCV[:, 0][:, 1], '-b', linewidth=2)
+    #         circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
+    #         ax.add_patch(circulo)
+    # plt.show()
+    # """DESENHANDO HISTOGRAMA"""
+    # plt.figure()
+    # plt.title("H Histogram")
+    # plt.xlabel("Bins")
+    # plt.ylabel("# of Pixels")
+    # plt.plot(hist)
+    # plt.xlim([0, 179])
+    # plt.show()
+    # """GERANDO RELATÓRIO """
+    # print("\n---~ INFORMAÇÕES - CONTORNO DO LIMÃO ~---")
+    # print("Número de Contornos Encontrados na Imagem:", tamanho_contornoCV)
+    # print("Perímetro:", maioresCV[0][1])
+    # print("Centróide:(", cx, ",", cy, ")")
+    # print("\n---~ SIZE & SHAPE - CIRCUNFERÊNCIA ~---")
+    # print("Raio:", raio, "\nCentro:", centroide)
+    # print("\n---~ TEXTURE - KURTOSIS SKEWNESS~---")
+    # print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
+    return  [[x,y,raio],hist,[texture_Kurt,texture_Skew]]
 
 if __name__ == '__main__':
 
