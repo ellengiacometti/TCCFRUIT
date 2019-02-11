@@ -79,27 +79,26 @@ if __name__ == '__main__':
     # print('%ERROS:', (Erros/Amostras)*100)
     # print('%ACERTOS:', (Acertos / Amostras) * 100)
 
-
+    #
     """ RANDOM FOREST """
     sc = StandardScaler()
-    X_train = sc.fit_transform(train_features)
-    # X_test = sc.transform(X_test)
-
+    X_train= sc.fit_transform(train_features)
+    Y_train= train_labels
+    classifier = RandomForestClassifier(n_estimators=20, random_state=0)
+    classifier.fit(X_train,Y_train)
     # # loop over the test images
     test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_TEST"
     for file in glob.glob(test_path + "/*.jpg"):
          features = TrataImagem(file)
-    #
-    #     # evaluate the model and predict label
-    #     features = np.array(features[2])
-    #     prediction = clf_svm.predict(features.reshape(1, -1))[0]
-    #
-    #     print("Nome:", file[58:70])
-    #     print("Prediction:", prediction)
+         # evaluate the model and predict label
+         features = np.array(features[2])
+         y_pred = classifier.predict(features.reshape(1, -1))
+         print("Nome:", file[58:70])
+         print("Prediction:", y_pred)
     #     Amostras+=1
     #     if(file[65]==prediction):
     #         Acertos+=1
     #     else:
     #         Erros+=1
     #
-    #TODO:https://bigdata-madesimple.com/dealing-with-unbalanced-class-svm-random-forest-and-decision-tree-in-python/
+    # #TODO:https://bigdata-madesimple.com/dealing-with-unbalanced-class-svm-random-forest-and-decision-tree-in-python/
