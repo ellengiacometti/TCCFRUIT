@@ -139,7 +139,10 @@ def TrataImagem(src):
     # print("\n---~ TEXTURE - KURTOSIS SKEWNESS~---")
     # print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
 
-    return  [[x,y,raio],hist,[texture_Kurt,texture_Skew]]
+     #SEM PANDAS
+    return  [[x,y,raio],[hist],[texture_Kurt,texture_Skew]]
+    #COM PANDAS
+    #return [x, y, raio, hist, texture_Kurt, texture_Skew]
 
 if __name__ == '__main__':
 

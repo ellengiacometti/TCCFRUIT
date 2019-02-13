@@ -5,7 +5,7 @@ import glob
 from TrataImagem import TrataImagem
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 
 
 if __name__ == '__main__':
@@ -48,57 +48,59 @@ if __name__ == '__main__':
 
 
     """ SVM """
-    #  # create the SVM classifier
-    # print ("[STATUS] Creating the classifier..")
-    # clf_svm = SVC(C=0.065 ,gamma=0.5,class_weight='balanced')
+     # create the SVM classifier
+    print ("[STATUS] Creating the classifier..")
+    clf_svm = SVC(C=0.065 ,gamma=0.5,class_weight='balanced')
+
+    # fit the training data and labels
+    print ("[STATUS] Fitting data/label to model..")
+    clf_svm.fit(train_features, train_labels)
+
+    # loop over the test images
+    test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_TEST"
+    for file in glob.glob(test_path + "/*.jpg"):
+        features = TrataImagem(file)
+
+        # evaluate the model and predict label
+        features = np.array(features[2])
+        prediction = clf_svm.predict(features.reshape(1, -1))[0]
+
+        print("Nome:", file[58:70])
+        print("Prediction:", prediction)
+        Amostras+=1
+        if(file[65]==prediction):
+            Acertos+=1
+        else:
+            Erros+=1
+
+    print('Numero de Acertos', Acertos)
+    print('Numero de Erros', Erros)
+    print('Numero de Amostras', Amostras)
+    print('%ERROS:', (Erros/Amostras)*100)
+    print('%ACERTOS:', (Acertos / Amostras) * 100)
+
     #
-    # # fit the training data and labels
-    # print ("[STATUS] Fitting data/label to model..")
-    # clf_svm.fit(train_features, train_labels)
-    #
+    # """ RANDOM FOREST """
+    # classifier = RandomForestClassifier(random_state=42, max_features='auto', n_estimators= 60, max_depth=8, criterion='gini')
+    # classifier.fit(train_features,train_labels)
     # # loop over the test images
     # test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_TEST"
     # for file in glob.glob(test_path + "/*.jpg"):
-    #     features = TrataImagem(file)
-    #
-    #     # evaluate the model and predict label
-    #     features = np.array(features[2])
-    #     prediction = clf_svm.predict(features.reshape(1, -1))[0]
-    #
-    #     print("Nome:", file[58:70])
-    #     print("Prediction:", prediction)
-    #     Amostras+=1
-    #     if(file[65]==prediction):
+    #      features = TrataImagem(file)
+    #      # evaluate the model and predict label
+    #      features = np.array(features[2])
+    #      y_pred = classifier.predict(features.reshape(1, -1))[0]
+    #      print("Nome:", file[58:70])
+    #      print("Prediction:", y_pred)
+    #      Amostras+=1
+    #      if(file[65]==y_pred):
     #         Acertos+=1
-    #     else:
+    #      else:
     #         Erros+=1
-    #
     # print('Numero de Acertos', Acertos)
     # print('Numero de Erros', Erros)
     # print('Numero de Amostras', Amostras)
     # print('%ERROS:', (Erros/Amostras)*100)
     # print('%ACERTOS:', (Acertos / Amostras) * 100)
 
-    #
-    """ RANDOM FOREST """
-    sc = StandardScaler()
-    X_train= sc.fit_transform(train_features)
-    Y_train= train_labels
-    classifier = RandomForestClassifier(n_estimators=20, random_state=0)
-    classifier.fit(X_train,Y_train)
-    # # loop over the test images
-    test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_TEST"
-    for file in glob.glob(test_path + "/*.jpg"):
-         features = TrataImagem(file)
-         # evaluate the model and predict label
-         features = np.array(features[2])
-         y_pred = classifier.predict(features.reshape(1, -1))
-         print("Nome:", file[58:70])
-         print("Prediction:", y_pred)
-    #     Amostras+=1
-    #     if(file[65]==prediction):
-    #         Acertos+=1
-    #     else:
-    #         Erros+=1
-    #
-    # #TODO:https://bigdata-madesimple.com/dealing-with-unbalanced-class-svm-random-forest-and-decision-tree-in-python/
+# #TODO:https://bigdata-madesimple.com/dealing-with-unbalanced-class-svm-random-forest-and-decision-tree-in-python/
