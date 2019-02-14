@@ -3,7 +3,7 @@ import numpy as np
 import os
 import glob
 from TrataImagem import TrataImagem
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score,confusion_matrix
 from sklearn.svm import SVC
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     train = pd.read_csv('Train.csv',index_col='Object')
     test = pd.read_csv('Test.csv', index_col='Object')
-    Texture = train.columns[1:3]
+    Texture = train.columns[0:2]
     TextureLabel = train['TextureLabel']
     TextureLabelTest=test['TextureLabel']
     le = LabelEncoder()
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     TextureLabelTest = le.transform(TextureLabelTest)
     le.fit(TextureLabel)
     TextureLabel = le.transform(TextureLabel)
-    X_train=train[Texture]
+
 
     # svm = SVC()
     # parameters = {'kernel': ('linear', 'rbf'), 'C': (1, 0.25, 0.5, 0.75,0.05), 'gamma': (0.5,1, 2, 3, 'auto'),
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     clf_svm.fit(train[Texture], TextureLabel)
     prediction = clf_svm.predict(test[Texture])
     print("Accuracy for SVM on CV data: ", accuracy_score(TextureLabelTest, prediction))
-
+    print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, prediction))
     # loop over the test images
     # test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_TEST"
     # for file in glob.glob(test_path + "/*.jpg"):

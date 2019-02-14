@@ -108,6 +108,7 @@ def TrataImagem(src):
     # Realizando Histograma da ROI
     # hist = cv.calcHist(h_BoundingBox, [0], None, [256], [0, 256])
     hist = cv.calcHist([h], [0], s_Closing, [256], [0, 256])
+
     """ TEXTURA:KURTOSIS & SKEWNESS """
     texture_Kurt = kurtosis(gray_BoundingBox, axis=None)
     texture_Skew = skew(gray_BoundingBox, axis=None)
@@ -140,9 +141,15 @@ def TrataImagem(src):
     # print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
 
      #SEM PANDAS
-    return  [[x,y,raio],[hist],[texture_Kurt,texture_Skew]]
+    #return  [[x,y,raio],[hist],[texture_Kurt,texture_Skew]]
     #COM PANDAS
-    #return [x, y, raio, hist, texture_Kurt, texture_Skew]
+    # hist = np.array_repr(hist).replace('\n','')
+    # hist = np.array(map(lambda x: str.replace(x, "'", " "), hist))
+    # #np.array(hist)
+    #hist= hist[0:255][:].astype(int)
+    hist = list(map(float, hist[0:255][:]))
+    # print(hist)
+    return [x, y, raio, hist, texture_Kurt, texture_Skew]
 
 if __name__ == '__main__':
 
