@@ -5,8 +5,6 @@
 import os
 import glob
 import pandas as pd
-import csv as csv
-import numpy as np
 from TrataImagem import TrataImagem
 
 """ Lendo Diretório """
@@ -51,19 +49,19 @@ for file in glob.glob(test_path + "/*.jpg"):
     # evaluate the model and predict label
     KurtosisTest.append(features[4])
     SkewnessTest.append(features[5])
-    texture_labelTest.append(file[65])
+    texture_labelTest.append(file[64])
     # colorTest.append(' '.join(map(str, features[3])))
     colorTest.append(features[3])
-    color_labelTest.append(file[66])
+    color_labelTest.append(file[65])
     test_names.append(file[59:len(file)])
 
 
 """ Montando o arquivo csv """
-raw_data = {'Object':train_names,'Kurtosis': Kurtosis,'Skewness':Skewness,'Color': color,'TextureLabel':  texture_label,'ColorLabel': color_label}
-df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness', 'Color','TextureLabel','ColorLabel'])
-# df.to_csv('Train.csv',index=False,quoting=csv.QUOTE_NONE,sep=",",escapechar=" ")
-df.to_csv('Train.csv',index=False,sep=";")
-print("Train.csv CRIADO")
+# raw_data = {'Object':train_names,'Kurtosis': Kurtosis,'Skewness':Skewness,'Color': color,'TextureLabel':  texture_label,'ColorLabel': color_label}
+# df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness', 'Color','TextureLabel','ColorLabel'])
+# # df.to_csv('Train.csv',index=False,quoting=csv.QUOTE_NONE,sep=",",escapechar=" ")
+# df.to_csv('Train.csv',index=False,sep=";")
+# print("Train.csv CRIADO")
 raw_data = {'Object':test_names,'Kurtosis': KurtosisTest,'Skewness':SkewnessTest,'Color': colorTest,'TextureLabel':  texture_labelTest,'ColorLabel': color_labelTest}
 df1 = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness','Color','TextureLabel','ColorLabel'])
 df1.to_csv('Test.csv',index=False,sep=";")

@@ -30,14 +30,14 @@ if __name__ == '__main__':
     leTest.fit(ColorLabelTest)
     ColorLabelTest= leTest.transform(ColorLabelTest)
 
+    # svm = SVC()
+    # parameters = {'C': (1, 0.25, 0.5, 0.75,0.05), 'gamma': (0.5,1, 2, 3, 'auto'),'class_weight': [{0: 1,1: w2} for w2 in [2, 4, 6, 10,12]]}
+    # clf = GridSearchCV(svm, parameters,verbose = 2)
+    # clf.fit(XTrain, ColorLabel)
+    # print("accuracy:" + str(np.average(cross_val_score(clf, XTrain, ColorLabel, scoring='accuracy'))))
+    # print(clf.best_params_)
 
 
-    svm = SVC()
-    parameters = {'C': (1, 0.25, 0.5, 0.75,0.05), 'gamma': (0.5,1, 2, 3, 'auto'),'class_weight': [{0: 1,1: w2} for w2 in [2, 4, 6, 10,12]]}
-    clf = GridSearchCV(svm, parameters,verbose = 2)
-    clf.fit(XTrain, ColorLabel)
-    print("accuracy:" + str(np.average(cross_val_score(clf, XTrain, ColorLabel, scoring='accuracy'))))
-    print(clf.best_params_)
     """ SVM """
      # create the SVM classifier
     print ("[STATUS] Creating the classifier..")

@@ -1,8 +1,4 @@
-import cv2
 import numpy as np
-import os
-import glob
-from TrataImagem import TrataImagem
 from sklearn.metrics import accuracy_score,confusion_matrix
 from sklearn.svm import SVC
 import pandas as pd
@@ -14,118 +10,98 @@ from sklearn.preprocessing import StandardScaler
 
 
 if __name__ == '__main__':
-    # # load the training dataset
-    # train_path  = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_LABEL"
-    # train_names = os.listdir(train_path)
-    #
-    # # empty list to hold feature vectors and train labels
-    # train_features = []
-    # train_labels = []
-    #
-    # # loop over the training dataset
-    # print("[STATUS] Started extracting  textures..")
-    # i = 1
-    # Liso=0
-    # Rugoso=0
-    # Acertos = 0
-    # Erros = 0
-    # Amostras = 0
-    # for train_name in train_names:
-    #     cur_path = train_path + "/" + train_name
-    #     cur_label = train_name
-    #     for file in glob.glob(cur_path):
-    #         print ("Processing Image - {} in {}".format(i, cur_label))
-    #         features = TrataImagem(file)
-    #         # append the feature vector and label
-    #         train_features.append(features[2])
-    #         train_labels.append(cur_label[5])
-    #         if(cur_label[5]=='L'):
-    #             Liso +=1
-    #         elif(cur_label[5]=='R'):
-    #             Rugoso+=1
-    #         # show loop update
-    #         i += 1
-    # # have a look at the size of our feature vector and labels
-    # print ("Training features: {}".format(np.array(train_features).shape))
-    # print ("Training labels: {}".format(np.array(train_labels).shape))
-    # print("Liso:",Liso)
-    # print("Rugoso:", Rugoso)
 
-    train = pd.read_csv('Train.csv',index_col='Object')
-    test = pd.read_csv('Test.csv', index_col='Object')
-    Texture = train.columns[0:2]
-    TextureLabel = train['TextureLabel']
-    TextureLabelTest=test['TextureLabel']
+    teste = lambda x: x.strip("[]").replace("'", "").split(", ")
+    train = pd.read_csv('Train.csv', index_col=False, sep=";", converters={'Color': teste})
+    test = pd.read_csv('Test.csv', index_col=False, sep=";", converters={'Color': teste})
     le = LabelEncoder()
+
+    ColorTrain = [list(map(float, hist)) for hist in train['Color']]
+    ColorTrain = np.array(ColorTrain)
+    colunasTrain = train.columns[1:3]
+    TextureTrain=train[colunasTrain].values
+    FeaturesTrain = np.hstack((TextureTrain,ColorTrain))
+
+    TextureLabelTrain = train['TextureLabel']
+    le.fit(TextureLabelTrain)
+    TextureLabelTrain = le.transform(TextureLabelTrain)
+
+    ColorLabelTrain =train['ColorLabel']
+    le.fit(ColorLabelTrain)
+    ColorLabelTrain = le.transform(ColorLabelTrain)
+
+
+    ColorTest = [list(map(float, hist)) for hist in test['Color']]
+    ColorTest = np.array(ColorTest)
+    colunasTest = test.columns[1:3]
+    TextureTest = test[colunasTest].values
+    FeaturesTest = np.hstack((TextureTest, ColorTest))
+
+    TextureLabelTest= test['TextureLabel']
     le.fit(TextureLabelTest)
     TextureLabelTest = le.transform(TextureLabelTest)
-    le.fit(TextureLabel)
-    TextureLabel = le.transform(TextureLabel)
 
+    ColorLabelTest = test ['ColorLabel']
+    le.fit(ColorLabelTest)
+    ColorLabelTest = le.transform(ColorLabelTest)
 
-    # svm = SVC()
-    # parameters = {'kernel': ('linear', 'rbf'), 'C': (1, 0.25, 0.5, 0.75,0.05), 'gamma': (0.5,1, 2, 3, 'auto'),
-    #               'decision_function_shape': ('ovo', 'ovr'),'class_weight': [{0: 1,1: w2} for w2 in [2, 4, 6, 10,12]]}
-    # clf = GridSearchCV(svm, parameters,verbose = 2)
-    # clf.fit(X_train, TextureLabel)
-    # print("accuracy:" + str(np.average(cross_val_score(clf, X_train, TextureLabel, scoring='accuracy'))))
-    # print("f1:" + str(np.average(cross_val_score(clf, X_train, TextureLabel, scoring='f1'))))
-    # print(clf.best_params_)
     # """ SVM """
-    #  # create the SVM classifier
-    # print ("[STATUS] Creating the classifier..")
-    # # clf_svm = SVC(C=0.065 ,gamma=0.5,class_weight='balanced')
-    clf_svm = SVC(C=1, gamma=0.5, class_weight={0:1,1:2},decision_function_shape = 'ovo')
+    # #  # create the SVM classifier
+    # svm = SVC()
+    # parameters = {'C': (1, 0.25, 0.5, 0.75,0.05), 'gamma': (0.5,1, 2, 3, 'auto')}
+    # #'class_weight': [{0: 1, 1: w2} for w2 in [2, 4, 6, 10, 12]]
+    # clf = GridSearchCV(svm, parameters,verbose = 2)
+    # clf.fit(FeaturesTrain, TextureLabelTrain)
+    # print("accuracy:" + str(np.average(cross_val_score(clf, FeaturesTrain, ColorLabelTrain, scoring='accuracy'))))
+    # print(clf.best_params_)
+
+
+
+    print("~~~ INFO BASE TESTE ~~~")
+    print("NÚMERO RUGOSOS:", sum(TextureLabelTest))
+    print("NÚMERO LISOS:", len(TextureLabelTest) - sum(TextureLabelTest))
+    print("NÚMERO SEM DEFEITO:", sum(ColorLabelTest))
+    print("NÚMERO COM DEFEITO:", len(ColorLabelTest) - sum(ColorLabelTest))
+    print("~~~ INFO BASE TREINO ~~~")
+    print("NÚMERO RUGOSOS:", sum(TextureLabelTrain))
+    print("NÚMERO LISOS:", len(TextureLabelTrain) - sum(TextureLabelTrain))
+    print("NÚMERO SEM DEFEITO:", sum(ColorLabelTrain))
+    print("NÚMERO COM DEFEITO:", len(ColorLabelTrain) - sum(ColorLabelTrain))
+
+    """CLASSIFICADOR LISO X RUGOSO"""
+    print("\n~~~ SVM -  CLASSIFICADOR LISO X RUGOSO ~~~")
+    #print("[STATUS] Creating the classifier..")
+    clf_svmLR = SVC(C=1, gamma=0.5, class_weight={0:1,1:2},decision_function_shape = 'ovo')
     # fit the training data and labels
-    print ("[STATUS] Fitting data/label to model..")
-    clf_svm.fit(train[Texture], TextureLabel)
-    prediction = clf_svm.predict(test[Texture])
-    print("Accuracy for SVM on CV data: ", accuracy_score(TextureLabelTest, prediction))
-    print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, prediction))
-    # loop over the test images
-    # test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_TEST"
-    # for file in glob.glob(test_path + "/*.jpg"):
-    #     features = TrataImagem(file)
-    #
-    #     # evaluate the model and predict label
-    #     features = np.array(features[2])
-    #     prediction = clf_svm.predict(features.reshape(1, -1))[0]
-    #
-    #     print("Nome:", file[58:70])
-    #     print("Prediction:", prediction)
-    #     Amostras+=1
-    #     if(file[65]==prediction):
-    #         Acertos+=1
-    #     else:
-    #         Erros+=1
-    # print('Numero de Acertos', Acertos)
-    # print('Numero de Erros', Erros)
-    # print('Numero de Amostras', Amostras)
-    # print('%ERROS:', (Erros/Amostras)*100)
-    # print('%ACERTOS:', (Acertos / Amostras) * 100)
+    #print ("[STATUS] Fitting data/label to model..")
+    clf_svmLR.fit(FeaturesTrain, TextureLabelTrain)
 
-    #
-    # """ RANDOM FOREST """
-    # classifier = RandomForestClassifier(random_state=42, max_features='auto', n_estimators= 60, max_depth=8, criterion='gini')
-    # classifier.fit(train_features,train_labels)
-    # # loop over the test images
-    # test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_TEST"
-    # for file in glob.glob(test_path + "/*.jpg"):
-    #      features = TrataImagem(file)
-    #      # evaluate the model and predict label
-    #      features = np.array(features[2])
-    #      y_pred = classifier.predict(features.reshape(1, -1))[0]
-    #      print("Nome:", file[58:70])
-    #      print("Prediction:", y_pred)
-    #      Amostras+=1
-    #      if(file[65]==y_pred):
-    #         Acertos+=1
-    #      else:
-    #         Erros+=1
-    # print('Numero de Acertos', Acertos)
-    # print('Numero de Erros', Erros)
-    # print('Numero de Amostras', Amostras)
-    # print('%ERROS:', (Erros/Amostras)*100)
-    # print('%ACERTOS:', (Acertos / Amostras) * 100)
+    #print("[STATUS] Predicting TRAINED DataBase..")
+    predictionTrain = clf_svmLR.predict(FeaturesTrain)
+    print("Accuracy for SVM on Trained data: ", accuracy_score(TextureLabelTrain, predictionTrain))
+    print("Confusion Matrix: ", confusion_matrix(TextureLabelTrain, predictionTrain))
 
-# #TODO:https://bigdata-madesimple.com/dealing-with-unbalanced-class-svm-random-forest-and-decision-tree-in-python/
+    #print("[STATUS] Predicting TEST DataBase..")
+    predictionTest = clf_svmLR.predict(FeaturesTest)
+    print("Accuracy for SVM on Test data: ", accuracy_score(TextureLabelTest, predictionTest))
+    print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, predictionTest))
+
+    """CLASSIFICADOR COM DEFEITO X SEM DEFEITO"""
+    print("\n~~~ SVM - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
+    #print("[STATUS] Creating the classifier..")
+    clf_svmCS = SVC(C=1, gamma=0.5, class_weight='balanced',decision_function_shape = 'ovo')
+    # fit the training data and labels
+   # print ("[STATUS] Fitting data/label to model..")
+    clf_svmCS.fit(FeaturesTrain, ColorLabelTrain)
+
+    #print("[STATUS] Predicting Trained DataBase..")
+    predictionTrain = clf_svmCS.predict(FeaturesTrain)
+    print("Accuracy for SVM on TRAINED data: ", accuracy_score(ColorLabelTrain, predictionTrain))
+    print("Confusion Matrix: ", confusion_matrix(ColorLabelTrain, predictionTrain))
+
+   # print("[STATUS] Predicting TEST DataBase..")
+    predictionTest = clf_svmCS.predict(FeaturesTest)
+    print("Accuracy for SVM on Test data: ", accuracy_score(ColorLabelTest, predictionTest))
+    print("Confusion Matrix: ", confusion_matrix(ColorLabelTest, predictionTest))
+
+
