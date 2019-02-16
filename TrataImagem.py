@@ -1,12 +1,13 @@
 import cv2 as cv
 import argparse
 import numpy as np
+from skimage.feature import greycomatrix, greycoprops
 import matplotlib.pyplot as plt
 from heapq import nlargest
 import matplotlib.patches as mpatches
 from scipy.stats import kurtosis, skew
 
-def TrataImagem(src):
+def TrataImagem(src,visual,verbose):
     """Author: Ellen Giacometti
     CRIADO EM: 21/12/2018
     ÚLTIMA ATUALIZAÇÃO: 05/02/2019
@@ -19,17 +20,18 @@ def TrataImagem(src):
     # Separando o canal de saturação
     h, s, v = cv.split(imgHSV)
     """ EXIBINDO CANAIS """
-    # fig1, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(10, 5), sharex=True, sharey=True)
-    # ax1.axis('off')
-    # ax1.imshow(h, cmap=plt.cm.gray)
-    # ax1.set_title(' h IMAGE')
-    # ax2.axis('off')
-    # ax2.imshow(s, cmap=plt.cm.gray)
-    # ax2.set_title('s IMAGE')
-    # ax3.axis('off')
-    # ax3.imshow(v, cmap=plt.cm.gray)
-    # ax3.set_title('v  IMAGE')
-    # plt.show()
+    if visual == 1:
+        fig1, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(10, 5), sharex=True, sharey=True)
+        ax1.axis('off')
+        ax1.imshow(h, cmap=plt.cm.gray)
+        ax1.set_title(' h IMAGE')
+        ax2.axis('off')
+        ax2.imshow(s, cmap=plt.cm.gray)
+        ax2.set_title('s IMAGE')
+        ax3.axis('off')
+        ax3.imshow(v, cmap=plt.cm.gray)
+        ax3.set_title('v  IMAGE')
+        plt.show()
     """ PROCESSAMENTO DA IMAGEM """
      # Filtro para borrar
     s_Blur = cv.blur(s,(5,5))
@@ -43,20 +45,21 @@ def TrataImagem(src):
     # Resultado da Máscara em RGB
     s_Result = cv.bitwise_and(cv.cvtColor(img, cv.COLOR_BGR2RGB), cv.cvtColor(img, cv.COLOR_BGR2RGB), mask=s_Closing)
     """ PRINTANDO IMAGENS DO PROCESSO   """
-    # fig, (ax1, ax2,ax3,ax4) = plt.subplots(1, 4, figsize=(10, 5), sharex=True, sharey=True)
-    # ax1.axis('off')
-    # ax1.imshow(s_Blur, cmap=plt.cm.gray)
-    # ax1.set_title('s_Blur ')
-    # ax2.axis('off')
-    # ax2.imshow(s_Thresh, cmap=plt.cm.gray)
-    # ax2.set_title('s_Thresh')
-    # ax3.axis('off')
-    # ax3.imshow(s_Closing, cmap=plt.cm.gray)
-    # ax3.set_title('s_Closing')
-    # ax4.axis('off')
-    # ax4.imshow(s_Result, cmap=plt.cm.gray)
-    # ax4.set_title('s_Result')
-    # plt.show()
+    if visual==1:
+        fig, (ax1, ax2,ax3,ax4) = plt.subplots(1, 4, figsize=(10, 5), sharex=True, sharey=True)
+        ax1.axis('off')
+        ax1.imshow(s_Blur, cmap=plt.cm.gray)
+        ax1.set_title('s_Blur ')
+        ax2.axis('off')
+        ax2.imshow(s_Thresh, cmap=plt.cm.gray)
+        ax2.set_title('s_Thresh')
+        ax3.axis('off')
+        ax3.imshow(s_Closing, cmap=plt.cm.gray)
+        ax3.set_title('s_Closing')
+        ax4.axis('off')
+        ax4.imshow(s_Result, cmap=plt.cm.gray)
+        ax4.set_title('s_Result')
+        plt.show()
     """ CRIANDO ROI """
     # Declarando variável BoundingBox
     BoundingBox = np.zeros_like(img)
@@ -96,60 +99,62 @@ def TrataImagem(src):
     HSV_BoundingBox = cv.cvtColor(BoundingBox, cv.COLOR_BGR2HSV)
     # Separando o canal de saturação
     h_BoundingBox, _, _ = cv.split(HSV_BoundingBox)
-    # Exibindo Canal H
-    # fig4, (ax1,ax2) = plt.subplots(1, 2, figsize=(10, 5), sharex=True, sharey=True)
-    # ax1.axis('off')
-    # ax1.imshow(h, cmap=plt.cm.gray)
-    # ax1.set_title('h')
-    # ax2.axis('off')
-    # ax2.imshow(s_Closing, cmap=plt.cm.gray)
-    # ax2.set_title('s_Closing')
-    # plt.show()
-    # Realizando Histograma da ROI
-    # hist = cv.calcHist(h_BoundingBox, [0], None, [256], [0, 256])
     hist = cv.calcHist([h], [0], s_Closing, [256], [0, 256])
+    hist = list(map(float, hist[0:255][:]))
 
     """ TEXTURA:KURTOSIS & SKEWNESS """
     texture_Kurt = kurtosis(gray_BoundingBox, axis=None)
     texture_Skew = skew(gray_BoundingBox, axis=None)
-    """DEBUG VERSION """
-    """DESENHANDO O CONTORNO E A CIRCUNFERÊNCIA"""
-    # fig2, ax = plt.subplots()
-    # ax.imshow(gray_BoundingBox, interpolation='nearest', cmap=plt.cm.gray)
-    # for n, contornoCV in enumerate(contornosCV):
-    #     if (n in (np.transpose(np.asanyarray(maioresCV))[:])):
-    #         ax.plot(contornoCV[:, 0][:, 0], contornoCV[:, 0][:, 1], '-b', linewidth=2)
-    #         circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
-    #         ax.add_patch(circulo)
-    # plt.show()
-    # """DESENHANDO HISTOGRAMA"""
-    # plt.figure()
-    # plt.title("H Histogram")
-    # plt.xlabel("Bins")
-    # plt.ylabel("# of Pixels")
-    # plt.plot(hist)
-    # plt.xlim([0, 256])
-    # plt.show()
-    # """GERANDO RELATÓRIO """
-    # print("\n---~ INFORMAÇÕES - CONTORNO DO LIMÃO ~---")
-    # print("Número de Contornos Encontrados na Imagem:", tamanho_contornoCV)
-    # print("Perímetro:", maioresCV[0][1])
-    # print("Centróide:(", cx, ",", cy, ")")
-    # print("\n---~ SIZE & SHAPE - CIRCUNFERÊNCIA ~---")
-    # print("Raio:", raio, "\nCentro:", centroide)
-    # print("\n---~ TEXTURE - KURTOSIS SKEWNESS~---")
-    # print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
+    """TEXTURA: GLCM"""
+    glcm = greycomatrix(gray_BoundingBox, [5], [0], 256, symmetric=True, normed=True)
+    dissimilarity= greycoprops(glcm, 'dissimilarity')[0, 0]
+    correlation= greycoprops(glcm, 'correlation')[0, 0]
+    homogeneity = greycoprops(glcm,'homogeneity')[0, 0]
+    energy = greycoprops(glcm, 'energy')[0, 0]
+    contrast= greycoprops(glcm, 'contrast')[0, 0]
+    ASM = greycoprops(glcm,'ASM')[0,0]
 
-     #SEM PANDAS
-    #return  [[x,y,raio],[hist],[texture_Kurt,texture_Skew]]
-    #COM PANDAS
-    # hist = np.array_repr(hist).replace('\n','')
-    # hist = np.array(map(lambda x: str.replace(x, "'", " "), hist))
-    # #np.array(hist)
-    #hist= hist[0:255][:].astype(int)
-    hist = list(map(float, hist[0:255][:]))
-    # print(hist)
-    return [x, y, raio, hist, texture_Kurt, texture_Skew]
+    """DEBUG VERSION """
+    if(visual==1):
+        """DESENHANDO O CONTORNO E A CIRCUNFERÊNCIA"""
+        # fig2, ax = plt.subplots()
+        # ax.imshow(gray_BoundingBox, interpolation='nearest', cmap=plt.cm.gray)
+        # for n, contornoCV in enumerate(contornosCV):
+        #     if (n in (np.transpose(np.asanyarray(maioresCV))[:])):
+        #         ax.plot(contornoCV[:, 0][:, 0], contornoCV[:, 0][:, 1], '-b', linewidth=2)
+        #         circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
+        #         ax.add_patch(circulo)
+        # plt.show()
+        """DESENHANDO HISTOGRAMA"""
+        # plt.figure()
+        # plt.title("H Histogram")
+        # plt.xlabel("Bins")
+        # plt.ylabel("# of Pixels")
+        # plt.plot(hist)
+        # plt.xlim([0, 256])
+        # plt.show()
+
+    """GERANDO RELATÓRIO """
+    if verbose==1:
+        print("\n---~ INFORMAÇÕES - CONTORNO DO LIMÃO ~---")
+        print("Número de Contornos Encontrados na Imagem:", tamanho_contornoCV)
+        print("Perímetro:", maioresCV[0][1])
+        print("Centróide:(", cx, ",", cy, ")")
+        print("\n---~ SIZE & SHAPE - CIRCUNFERÊNCIA ~---")
+        print("Raio:", raio, "\nCentro:", centroide)
+        print("\n---~ TEXTURE - KURTOSIS SKEWNESS~---")
+        print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
+        print("\n---~ TEXTURE - GLCM~---")
+        print("Dissimilarity:",dissimilarity)
+        print("Correlation:",correlation)
+        print("Homogeneity:", homogeneity)
+        print("Energy:", energy)
+        print("Contrast:", contrast)
+        print("ASM:", ASM)
+
+
+
+    return [x, y, raio, hist, texture_Kurt, texture_Skew,dissimilarity,correlation,homogeneity,energy,contrast,ASM]
 
 if __name__ == '__main__':
 
@@ -158,9 +163,8 @@ if __name__ == '__main__':
     ap.add_argument("-i", "--path", required=True, help="path to the input image")
     args = vars(ap.parse_args())
     imageDir_val= args["path"]
-
     Atributos = []
-    Atributos.append(TrataImagem(imageDir_val))
+    Atributos.append(TrataImagem(imageDir_val,visual=0,verbose=0))
 
 
 
