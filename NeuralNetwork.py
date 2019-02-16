@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     ColorTrain = [list(map(float, hist)) for hist in train['Color']]
     ColorTrain = np.array(ColorTrain)
-    colunasTrain = train.columns[1:3]
+    colunasTrain = train.columns[1:9]
     TextureTrain = train[colunasTrain].values
     FeaturesTrain = np.hstack((TextureTrain, ColorTrain))
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     ColorTest = [list(map(float, hist)) for hist in test['Color']]
     ColorTest = np.array(ColorTest)
-    colunasTest = test.columns[1:3]
+    colunasTest = test.columns[1:9]
     TextureTest = test[colunasTest].values
     FeaturesTest = np.hstack((TextureTest, ColorTest))
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     le.fit(ColorLabelTest)
     ColorLabelTest = le.transform(ColorLabelTest)
 
-    print("\n~~~ SVM - CLASSIFICADOR LISO X RUGOSO~~~")
+    print("\n~~~ REDE NEURAL  - CLASSIFICADOR LISO X RUGOSO~~~")
     clf_nnLR = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
     clf_nnLR.fit(FeaturesTrain, TextureLabelTrain)
     # print("[STATUS] Predicting Trained DataBase..")
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, predictionTest))
 
 
-    print("\n~~~ SVM - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
+    print("\n~~~ REDE NEURAL - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
     clf_nnCS = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
     clf_nnCS.fit(FeaturesTrain, ColorLabelTrain)
     # print("[STATUS] Predicting Trained DataBase..")

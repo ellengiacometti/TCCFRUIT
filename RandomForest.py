@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     ColorTrain = [list(map(float, hist)) for hist in train['Color']]
     ColorTrain = np.array(ColorTrain)
-    colunasTrain = train.columns[1:3]
+    colunasTrain = train.columns[1:9]
     TextureTrain = train[colunasTrain].values
     FeaturesTrain = np.hstack((TextureTrain, ColorTrain))
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     ColorTest = [list(map(float, hist)) for hist in test['Color']]
     ColorTest = np.array(ColorTest)
-    colunasTest = test.columns[1:3]
+    colunasTest = test.columns[1:9]
     TextureTest = test[colunasTest].values
     FeaturesTest = np.hstack((TextureTest, ColorTest))
 
