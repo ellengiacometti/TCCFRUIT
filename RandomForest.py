@@ -47,17 +47,17 @@ if __name__ == '__main__':
     #     'class_weight': [{0: 1,1: w2} for w2 in [2, 4, 6, 10,12]]
     #
     param_grid = {
-    # Number of trees in random forest
+        # Number of trees in random forest
         'n_estimators': [int(x) for x in np.linspace(start=20, stop=2000, num=10)],
-    # Number of features to consider at every split
+         # Number of features to consider at every split
         'max_features': ['auto', 'sqrt'],
-    # Maximum number of levels in tree
-        'max_depth': [int(x) for x in np.linspace(10, 90, num=11)],
-    # Minimum number of samples required to split a node
+         # Maximum number of levels in tree
+        'max_depth': [int(x) for x in np.linspace(10, 60, num=11)],
+         # Minimum number of samples required to split a node
         'min_samples_split': [2, 5, 10,15],
-    # Minimum number of samples required at each leaf node
+         # Minimum number of samples required at each leaf node
         'min_samples_leaf': [1, 2, 4,6],
-    # Method of selecting samples for training each tree
+        # Method of selecting samples for training each tree
         'bootstrap': [True, False]
     }
     # Create a based model
