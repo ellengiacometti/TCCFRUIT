@@ -12,15 +12,19 @@ from sklearn.preprocessing import StandardScaler
 if __name__ == '__main__':
 
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('Train.csv', index_col=False, sep=";", converters={'Color': teste})
-    test = pd.read_csv('Test.csv', index_col=False, sep=";", converters={'Color': teste})
+    train = pd.read_csv('Train.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
+    test = pd.read_csv('Test.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
     le = LabelEncoder()
 
-    ColorTrain = [list(map(float, hist)) for hist in train['Color']]
-    ColorTrain = np.array(ColorTrain)
+    ColorTrainH = [list(map(float, histH)) for histH in train['ColorH']]
+    ColorTrainH = np.array(ColorTrainH)
+    ColorTrainS = [list(map(float, histS)) for histS in train['ColorS']]
+    ColorTrainS = np.array(ColorTrainS)
+    ColorTrainV = [list(map(float, histV)) for histV in train['ColorV']]
+    ColorTrainV = np.array(ColorTrainV)
     colunasTrain = train.columns[1:9]
     TextureTrain=train[colunasTrain].values
-    FeaturesTrain = np.hstack((TextureTrain,ColorTrain))
+    FeaturesTrain = np.hstack((TextureTrain,ColorTrainH,ColorTrainS,ColorTrainV))
 
     TextureLabelTrain = train['TextureLabel']
     le.fit(TextureLabelTrain)
@@ -31,11 +35,16 @@ if __name__ == '__main__':
     ColorLabelTrain = le.transform(ColorLabelTrain)
 
 
-    ColorTest = [list(map(float, hist)) for hist in test['Color']]
-    ColorTest = np.array(ColorTest)
+
+    ColorTestH = [list(map(float, histH)) for histH in train['ColorH']]
+    ColorTestH = np.array(ColorTestH)
+    ColorTestS = [list(map(float, histS)) for histS in train['ColorS']]
+    ColorTestS = np.array(ColorTestS)
+    ColorTestV = [list(map(float, histV)) for histV in train['ColorV']]
+    ColorTestV = np.array(ColorTestV)
     colunasTest = test.columns[1:9]
     TextureTest = test[colunasTest].values
-    FeaturesTest = np.hstack((TextureTest, ColorTest))
+    FeaturesTest = np.hstack((TextureTest, ColorTestH,ColorTestS,ColorTestV))
 
     TextureLabelTest= test['TextureLabel']
     le.fit(TextureLabelTest)
@@ -45,33 +54,35 @@ if __name__ == '__main__':
     le.fit(ColorLabelTest)
     ColorLabelTest = le.transform(ColorLabelTest)
 
-    # """ SVM """
+    # # """ SVM """
     # #  # create the SVM classifier
     # svm = SVC()
-    # parameters = {'C': (1, 0.25, 0.5, 0.75,0.05), 'gamma': (0.5,1, 2, 3, 'auto')}
-    # #'class_weight': [{0: 1, 1: w2} for w2 in [2, 4, 6, 10, 12]]
-    # clf = GridSearchCV(svm, parameters,verbose = 2)
+    #
+    # parameters = {'C': (1, 0.25, 0.5, 0.75, 0.05, 0.001, 0.01, 0.1, 100, 10, 1000), 'gamma': (0.5,1,3,'auto'),'kernel':('poly','rbf'),'random_state':[int(x) for x in np.linspace(start=0, stop=1000, num=10)]}
+    # # parameters = {'C': (1, 0.25, 0.5, 0.75, 0.05, 0.001, 0.01, 0.1, 100, 10, 1000), 'gamma': (0.5, 1, 2, 3, 'auto'),
+    # #               'kernel': ('linear', 'rbf', 'poly')}
+    # #'class_weight': [{0: 1, 1: w2} for w2 in [1, 2, 4, 6, 10, 12]]
+    # clf = GridSearchCV(svm, parameters,verbose = 100)
     # clf.fit(FeaturesTrain, TextureLabelTrain)
-    # print("accuracy:" + str(np.average(cross_val_score(clf, FeaturesTrain, ColorLabelTrain, scoring='accuracy'))))
     # print(clf.best_params_)
 
 
 
     print("~~~ INFO BASE TESTE ~~~")
     print("NÚMERO RUGOSOS:", sum(TextureLabelTest))
-    print("NÚMERO LISOS:", len(TextureLabelTest) - sum(TextureLabelTest))
+    print("NÚMERO LISOS:",( len(TextureLabelTest) - sum(TextureLabelTest)))
     print("NÚMERO SEM DEFEITO:", sum(ColorLabelTest))
-    print("NÚMERO COM DEFEITO:", len(ColorLabelTest) - sum(ColorLabelTest))
+    print("NÚMERO COM DEFEITO:", (len(ColorLabelTest) - sum(ColorLabelTest)))
     print("~~~ INFO BASE TREINO ~~~")
     print("NÚMERO RUGOSOS:", sum(TextureLabelTrain))
-    print("NÚMERO LISOS:", len(TextureLabelTrain) - sum(TextureLabelTrain))
+    print("NÚMERO LISOS:", (len(TextureLabelTrain) - sum(TextureLabelTrain)))
     print("NÚMERO SEM DEFEITO:", sum(ColorLabelTrain))
     print("NÚMERO COM DEFEITO:", len(ColorLabelTrain) - sum(ColorLabelTrain))
 
     """CLASSIFICADOR LISO X RUGOSO"""
     print("\n~~~ SVM -  CLASSIFICADOR LISO X RUGOSO ~~~")
     #print("[STATUS] Creating the classifier..")
-    clf_svmLR = SVC(C=1, gamma=0.5, class_weight={0:1,1:2},decision_function_shape = 'ovo')
+    clf_svmLR = SVC(C=1, gamma=0.5,decision_function_shape = 'ovo',kernel='poly')
     # fit the training data and labels
     #print ("[STATUS] Fitting data/label to model..")
     clf_svmLR.fit(FeaturesTrain, TextureLabelTrain)
@@ -89,7 +100,8 @@ if __name__ == '__main__':
     """CLASSIFICADOR COM DEFEITO X SEM DEFEITO"""
     print("\n~~~ SVM - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
     #print("[STATUS] Creating the classifier..")
-    clf_svmCS = SVC(C=1, gamma=0.5, class_weight='balanced',decision_function_shape = 'ovo')
+    clf_svmCS = SVC(C=1, gamma=0.5, decision_function_shape = 'ovo',kernel='poly')
+    # clf_svmCS = SVC(C=1, gamma=0.5, class_weight='balanced', decision_function_shape='ovo', kernel='poly')
     # fit the training data and labels
    # print ("[STATUS] Fitting data/label to model..")
     clf_svmCS.fit(FeaturesTrain, ColorLabelTrain)
@@ -103,5 +115,5 @@ if __name__ == '__main__':
     predictionTest = clf_svmCS.predict(FeaturesTest)
     print("Accuracy for SVM on Test data: ", accuracy_score(ColorLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(ColorLabelTest, predictionTest))
-
+   #
 

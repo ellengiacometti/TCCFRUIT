@@ -2,6 +2,7 @@ import os
 import glob
 import cv2 as cv
 import scipy.misc as scm
+import skimage.util as su
 from skimage.io import imsave
 
 
@@ -50,6 +51,7 @@ def Flip(image, direction):
         img = cv.flip(image, 0)
     return img
 def Noise(image, dB):
+    img = su.random_noise(image,mode='gaussian')
     return img
 
 

@@ -98,9 +98,13 @@ def TrataImagem(src,visual,verbose):
     # Mudando os canais da ROI
     HSV_BoundingBox = cv.cvtColor(BoundingBox, cv.COLOR_BGR2HSV)
     # Separando o canal de saturação
-    h_BoundingBox, _, _ = cv.split(HSV_BoundingBox)
-    hist = cv.calcHist([h], [0], s_Closing, [256], [0, 256])
-    hist = list(map(float, hist[0:255][:]))
+    h_BoundingBox, s_BoundingBox,v_BoundingBox = cv.split(HSV_BoundingBox)
+    histH = cv.calcHist([h], [0], s_Closing, [256], [0, 256])
+    histH = list(map(float, histH[0:255][:]))
+    histS = cv.calcHist([s], [0], s_Closing, [256], [0, 256])
+    histS = list(map(float, histS[0:255][:]))
+    histV = cv.calcHist([v], [0], s_Closing, [256], [0, 256])
+    histV = list(map(float, histV[0:255][:]))
 
     """ TEXTURA:KURTOSIS & SKEWNESS """
     texture_Kurt = kurtosis(gray_BoundingBox, axis=None)
@@ -117,22 +121,36 @@ def TrataImagem(src,visual,verbose):
     """DEBUG VERSION """
     if(visual==1):
         """DESENHANDO O CONTORNO E A CIRCUNFERÊNCIA"""
-        # fig2, ax = plt.subplots()
-        # ax.imshow(gray_BoundingBox, interpolation='nearest', cmap=plt.cm.gray)
-        # for n, contornoCV in enumerate(contornosCV):
-        #     if (n in (np.transpose(np.asanyarray(maioresCV))[:])):
-        #         ax.plot(contornoCV[:, 0][:, 0], contornoCV[:, 0][:, 1], '-b', linewidth=2)
-        #         circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
-        #         ax.add_patch(circulo)
-        # plt.show()
+        fig2, ax = plt.subplots()
+        ax.imshow(gray_BoundingBox, interpolation='nearest', cmap=plt.cm.gray)
+        for n, contornoCV in enumerate(contornosCV):
+            if (n in (np.transpose(np.asanyarray(maioresCV))[:])):
+                ax.plot(contornoCV[:, 0][:, 0], contornoCV[:, 0][:, 1], '-b', linewidth=2)
+                circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
+                ax.add_patch(circulo)
+        plt.show()
         """DESENHANDO HISTOGRAMA"""
-        # plt.figure()
-        # plt.title("H Histogram")
-        # plt.xlabel("Bins")
-        # plt.ylabel("# of Pixels")
-        # plt.plot(hist)
-        # plt.xlim([0, 256])
-        # plt.show()
+        plt.figure()
+        plt.title("H Histogram")
+        plt.xlabel("Bins")
+        plt.ylabel("# of Pixels")
+        plt.plot(histH)
+        plt.xlim([0, 256])
+        plt.show()
+        plt.figure()
+        plt.title("S Histogram")
+        plt.xlabel("Bins")
+        plt.ylabel("# of Pixels")
+        plt.plot(histS)
+        plt.xlim([0, 256])
+        plt.show()
+        plt.figure()
+        plt.title("V Histogram")
+        plt.xlabel("Bins")
+        plt.ylabel("# of Pixels")
+        plt.plot(histV)
+        plt.xlim([0, 256])
+        plt.show()
 
     """GERANDO RELATÓRIO """
     if verbose==1:
@@ -154,7 +172,7 @@ def TrataImagem(src,visual,verbose):
 
 
 
-    return [x, y, raio, hist, texture_Kurt, texture_Skew,dissimilarity,correlation,homogeneity,energy,contrast,ASM]
+    return [x, y, raio, histH, histS,histV, texture_Kurt, texture_Skew,dissimilarity,correlation,homogeneity,energy,contrast,ASM]
 
 if __name__ == '__main__':
 
@@ -164,7 +182,7 @@ if __name__ == '__main__':
     args = vars(ap.parse_args())
     imageDir_val= args["path"]
     Atributos = []
-    Atributos.append(TrataImagem(imageDir_val,visual=0,verbose=0))
+    Atributos.append(TrataImagem(imageDir_val,visual=1,verbose=0))
 
 
 

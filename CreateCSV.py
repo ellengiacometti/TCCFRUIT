@@ -28,7 +28,9 @@ for type_dir in dir:
     Contrast = []
     ASM = []
     texture_label = []
-    color = []
+    colorH = []
+    colorS = []
+    colorV = []
     color_label = []
     for name in os.listdir(type_dir):
 
@@ -38,21 +40,23 @@ for type_dir in dir:
             print("Processing Image - {} in {}".format(i, cur_label))
             features = TrataImagem(file,0,0)
             # append the feature vector and label
-            Kurtosis.append(features[4])
-            Skewness.append(features[5])
-            Dissimilarity.append(features[6])
-            Correlation.append(features[7])
-            Homogeneity.append(features[8])
-            Energy.append(features[9])
-            Contrast.append(features[10])
-            ASM .append(features[11])
-            color.append(features[3])
+            Kurtosis.append(features[6])
+            Skewness.append(features[7])
+            Dissimilarity.append(features[8])
+            Correlation.append(features[9])
+            Homogeneity.append(features[10])
+            Energy.append(features[11])
+            Contrast.append(features[12])
+            ASM .append(features[13])
+            colorH.append(features[3])
+            colorS.append(features[4])
+            colorV.append(features[5])
             texture_label.append(cur_label[5])
             color_label.append(cur_label[6])
             i+=1
 
-    raw_data = {'Object':os.listdir(type_dir),'Kurtosis': Kurtosis,'Skewness':Skewness,'Dissimilarity':Dissimilarity,'Correlation':Correlation,'Homogeneity':Homogeneity,'Energy':Energy,'Contrast':Contrast, 'ASM':ASM,'Color': color,'TextureLabel':  texture_label,'ColorLabel': color_label}
-    df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness','Dissimilarity','Correlation','Homogeneity','Energy','Contrast', 'ASM', 'Color','TextureLabel','ColorLabel'])
+    raw_data = {'Object':os.listdir(type_dir),'Kurtosis': Kurtosis,'Skewness':Skewness,'Dissimilarity':Dissimilarity,'Correlation':Correlation,'Homogeneity':Homogeneity,'Energy':Energy,'Contrast':Contrast, 'ASM':ASM,'ColorH': colorH,'ColorS': colorS,'Colorv': colorV,'TextureLabel':  texture_label,'ColorLabel': color_label}
+    df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness','Dissimilarity','Correlation','Homogeneity','Energy','Contrast', 'ASM', 'ColorH','ColorS','ColorV','TextureLabel','ColorLabel'])
     valueType += 1
     if valueType==1:
         df.to_csv('Train.csv',index=False,sep=";")

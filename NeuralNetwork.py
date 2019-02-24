@@ -39,8 +39,27 @@ if __name__ == '__main__':
     le.fit(ColorLabelTest)
     ColorLabelTest = le.transform(ColorLabelTest)
 
+    # """Grid Search"""
+    # parameter_space = {
+    #     'hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (5, 2),],
+    #     'activation': ['tanh', 'relu'],
+    #     'solver': ['sgd', 'adam','lbfgs'],
+    #     'alpha': [0.0001, 0.05,1e-5,1e-6,1],
+    #     'learning_rate': ['constant', 'adaptive'],
+    #     'random_state':[1,5,10,15,20,30,40,50],
+    # }
+    # mlp = MLPClassifier(solver='lbfgs')
+    # clf = GridSearchCV(mlp, parameter_space, verbose=2,n_jobs=-1, cv=3)
+    # clf.fit(FeaturesTrain, ColorLabelTrain)
+    # clf.best_params_
+    # print(clf.best_params_)
+
+    #{'alpha': 0.0001, 'learning_rate': 'constant', 'activation': 'relu', 'hidden_layer_sizes': (50, 50, 50), 'random_state': 40, 'solver': 'lbfgs'}
+
     print("\n~~~ REDE NEURAL  - CLASSIFICADOR LISO X RUGOSO~~~")
-    clf_nnLR = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
+
+    # 'activation': 'tanh', 'hidden_layer_sizes': (50, 50, 50), 'alpha': 0.05, 'learning_rate': 'constant', 'solver': 'adam', 'random_state': 50
+    clf_nnLR = MLPClassifier(activation= 'relu', hidden_layer_sizes= (50, 50, 50), alpha= 0.0001, learning_rate= 'constant', solver = 'lbfgs', random_state= 40)
     clf_nnLR.fit(FeaturesTrain, TextureLabelTrain)
     # print("[STATUS] Predicting Trained DataBase..")
     predictionTrain = clf_nnLR.predict(FeaturesTrain)
@@ -52,9 +71,8 @@ if __name__ == '__main__':
     print("Accuracy for Neural Network on Test data: ", accuracy_score(TextureLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, predictionTest))
 
-
     print("\n~~~ REDE NEURAL - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
-    clf_nnCS = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
+    clf_nnCS = MLPClassifier(learning_rate= 'constant', solver= 'adam', activation='relu', random_state= 50, hidden_layer_sizes= (50, 50, 50), alpha= 0.05)
     clf_nnCS.fit(FeaturesTrain, ColorLabelTrain)
     # print("[STATUS] Predicting Trained DataBase..")
     predictionTrain = clf_nnCS.predict(FeaturesTrain)
