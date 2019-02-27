@@ -9,9 +9,18 @@ from scipy.stats import kurtosis, skew
 
 def TrataImagem(src,visual,verbose):
     """Author: Ellen Giacometti
-    CRIADO EM: 21/12/2018
-    ÚLTIMA ATUALIZAÇÃO: 05/02/2019
-    DESC: Código que recebe uma imagem e extrai os Atributos do limão contido nela"""
+        CRIADO EM: 21/12/2018
+        ÚLTIMA ATUALIZAÇÃO: 05/02/2019
+        DESC: Código que recebe uma imagem e extrai os Atributos do limão contido nela
+        Args:
+            visual (int): If visual = 1  will plot figures and histograms, if visual= 0 nothing is shown.
+            verbose (int): It sets whether the function will print values extracted from image or not.Verbose=0 disable it
+        Returns:
+            x, y, raio: Values from size of the minimum enclosing circle, obtained from the biggest contour
+            histH, histS, histV: Histograms of each channel of the given image. It one is a vector with 255 length
+            texture_Kurt, texture_Skew: Float values of Kurtosis and Skewness
+            dissimilarity,correlation,homogeneity,energy,contrast,ASM: GLCM  properties"""
+
     """ LENDO IMAGEM """
     # Lendo Imagem
     img = cv.imread(src)
@@ -95,10 +104,6 @@ def TrataImagem(src,visual,verbose):
     ((x, y), raio) = cv.minEnclosingCircle(contorno_util)
     centroide = (int(x), int(y))
     """ HISTOGRAMA DO CANAL H   """
-    # Mudando os canais da ROI
-    HSV_BoundingBox = cv.cvtColor(BoundingBox, cv.COLOR_BGR2HSV)
-    # Separando o canal de saturação
-    h_BoundingBox, s_BoundingBox,v_BoundingBox = cv.split(HSV_BoundingBox)
     histH = cv.calcHist([h], [0], s_Closing, [256], [0, 256])
     histH = list(map(float, histH[0:255][:]))
     histS = cv.calcHist([s], [0], s_Closing, [256], [0, 256])
@@ -170,19 +175,10 @@ def TrataImagem(src,visual,verbose):
         print("Contrast:", contrast)
         print("ASM:", ASM)
 
+    return [x, y, raio, histH, histS, histV, texture_Kurt, texture_Skew,dissimilarity,correlation,homogeneity,energy,contrast,ASM]
 
 
-    return [x, y, raio, histH, histS,histV, texture_Kurt, texture_Skew,dissimilarity,correlation,homogeneity,energy,contrast,ASM]
 
-if __name__ == '__main__':
-
-    """PARÂMETROS"""
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--path", required=True, help="path to the input image")
-    args = vars(ap.parse_args())
-    imageDir_val= args["path"]
-    Atributos = []
-    Atributos.append(TrataImagem(imageDir_val,visual=1,verbose=0))
 
 
 

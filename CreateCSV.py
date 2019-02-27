@@ -55,7 +55,7 @@ for type_dir in dir:
             color_label.append(cur_label[6])
             i+=1
 
-    raw_data = {'Object':os.listdir(type_dir),'Kurtosis': Kurtosis,'Skewness':Skewness,'Dissimilarity':Dissimilarity,'Correlation':Correlation,'Homogeneity':Homogeneity,'Energy':Energy,'Contrast':Contrast, 'ASM':ASM,'ColorH': colorH,'ColorS': colorS,'Colorv': colorV,'TextureLabel':  texture_label,'ColorLabel': color_label}
+    raw_data = {'Object':os.listdir(type_dir),'Kurtosis': Kurtosis,'Skewness':Skewness,'Dissimilarity':Dissimilarity,'Correlation':Correlation,'Homogeneity':Homogeneity,'Energy':Energy,'Contrast':Contrast, 'ASM':ASM,'ColorH': colorH,'ColorS': colorS,'ColorV': colorV,'TextureLabel':  texture_label,'ColorLabel': color_label}
     df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness','Dissimilarity','Correlation','Homogeneity','Energy','Contrast', 'ASM', 'ColorH','ColorS','ColorV','TextureLabel','ColorLabel'])
     valueType += 1
     if valueType==1:
