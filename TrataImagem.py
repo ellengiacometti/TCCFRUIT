@@ -83,7 +83,7 @@ def TrataImagem(src,visual,verbose):
     gray_BoundingBox = cv.cvtColor(BoundingBox, cv.COLOR_RGB2GRAY)
     """ CONTORNO OPENCV """
     # Capturando contornos
-    _, contornosCV, _ = cv.findContours(gray_BoundingBox, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+    _, contornosCV, _ = cv.findContours(s_Closing, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
     # Adquirindo o número de contornos encontrados
     tamanho_contornoCV = len(contornosCV)
     # Declarando um array para armazenar o tamanho de cada contorno
@@ -127,7 +127,7 @@ def TrataImagem(src,visual,verbose):
     if(visual==1):
         """DESENHANDO O CONTORNO E A CIRCUNFERÊNCIA"""
         fig2, ax = plt.subplots()
-        ax.imshow(gray_BoundingBox, interpolation='nearest', cmap=plt.cm.gray)
+        ax.imshow(s_Result, interpolation='nearest', cmap=plt.cm.gray)
         for n, contornoCV in enumerate(contornosCV):
             if (n in (np.transpose(np.asanyarray(maioresCV))[:])):
                 ax.plot(contornoCV[:, 0][:, 0], contornoCV[:, 0][:, 1], '-b', linewidth=2)
