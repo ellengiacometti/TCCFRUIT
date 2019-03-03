@@ -14,5 +14,5 @@ if __name__ == '__main__':
 
     origem = '/home/ellengiacometti/PycharmProjects/TCCFRUIT/OR_DA'
     destino = '/home/ellengiacometti/PycharmProjects/TCCFRUIT/DES_DA'
-    TI.TrataImagem('/home/ellengiacometti/PycharmProjects/TCCFRUIT/TEST/RS/0007_RSG.jpg',1,0)
-    #DA.DataAugmentation(srcDirOr=origem,srcDirEnd=destino,initialid= 2632,type=3,angle=0,size=(400,400),dB=0.01,direction='Vertical')
+    DA.DataAugmentation(srcDirOr=origem,srcDirEnd=destino,initialid= 5874,type=4,angle=90,size=(400,400),dB=0.01,direction='Vertical')
+    TI.TrataImagem('/home/ellengiacometti/PycharmProjects/TCCFRUIT/DES_DA/4-NOISY/0.01dB/5875_LSG.jpg', 1, 0)

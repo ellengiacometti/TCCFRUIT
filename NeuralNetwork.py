@@ -9,16 +9,22 @@ from sklearn.preprocessing import LabelEncoder
 
 if __name__ == '__main__':
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('Train.csv', index_col=False, sep=";", converters={'Color': teste})
-    test = pd.read_csv('Test.csv', index_col=False, sep=";", converters={'Color': teste})
+    train = pd.read_csv('Train.csv', index_col=False, sep=";",
+                        converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
+    test = pd.read_csv('Test.csv', index_col=False, sep=";",
+                       converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
     le = LabelEncoder()
 
-    ColorTrain = [list(map(float, hist)) for hist in train['Color']]
-    ColorTrain = np.array(ColorTrain)
+    ColorTrainH = [list(map(float, histH)) for histH in train['ColorH']]
+    ColorTrainH = np.array(ColorTrainH)
+    ColorTrainS = [list(map(float, histS)) for histS in train['ColorS']]
+    ColorTrainS = np.array(ColorTrainS)
+    ColorTrainV = [list(map(float, histV)) for histV in train['ColorV']]
+    ColorTrainV = np.array(ColorTrainV)
     colunasTrain = train.columns[1:9]
     TextureTrain = train[colunasTrain].values
-    FeaturesTrain = np.hstack((TextureTrain, ColorTrain))
-
+    colunaTrainColor = np.hstack((ColorTrainH, ColorTrainS, ColorTrainV))
+    FeaturesTrain = np.hstack((TextureTrain, colunaTrainColor))
     TextureLabelTrain = train['TextureLabel']
     le.fit(TextureLabelTrain)
     TextureLabelTrain = le.transform(TextureLabelTrain)
@@ -26,12 +32,16 @@ if __name__ == '__main__':
     le.fit(ColorLabelTrain)
     ColorLabelTrain = le.transform(ColorLabelTrain)
 
-    ColorTest = [list(map(float, hist)) for hist in test['Color']]
-    ColorTest = np.array(ColorTest)
+    ColorTestH = [list(map(float, histH)) for histH in test['ColorH']]
+    ColorTestH = np.array(ColorTestH)
+    ColorTestS = [list(map(float, histS)) for histS in test['ColorS']]
+    ColorTestS = np.array(ColorTestS)
+    ColorTestV = [list(map(float, histV)) for histV in test['ColorV']]
+    ColorTestV = np.array(ColorTestV)
     colunasTest = test.columns[1:9]
     TextureTest = test[colunasTest].values
-    FeaturesTest = np.hstack((TextureTest, ColorTest))
-
+    colunaTestColor = np.hstack((ColorTestH, ColorTestS, ColorTestV))
+    FeaturesTest = np.hstack((TextureTest, colunaTestColor))
     TextureLabelTest = test['TextureLabel']
     le.fit(TextureLabelTest)
     TextureLabelTest = le.transform(TextureLabelTest)
@@ -68,7 +78,7 @@ if __name__ == '__main__':
 
     # print("[STATUS] Predicting TEST DataBase..")
     predictionTest = clf_nnLR.predict(FeaturesTest)
-    print("Accuracy for Neural Network on Test data: ", accuracy_score(TextureLabelTest, predictionTest))
+    print("Accuracy for Neural Network on TEST data: ", accuracy_score(TextureLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, predictionTest))
 
     print("\n~~~ REDE NEURAL - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
@@ -81,5 +91,5 @@ if __name__ == '__main__':
 
     # print("[STATUS] Predicting TEST DataBase..")
     predictionTest = clf_nnCS.predict(FeaturesTest)
-    print("Accuracy for Neural Network on Test data: ", accuracy_score(ColorLabelTest, predictionTest))
+    print("Accuracy for Neural Network on TEST data: ", accuracy_score(ColorLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(ColorLabelTest, predictionTest))

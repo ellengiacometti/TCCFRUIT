@@ -9,16 +9,21 @@ from sklearn.preprocessing import LabelEncoder
 
 if __name__ == '__main__':
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('Train.csv', index_col=False, sep=";", converters={'Color': teste})
-    test = pd.read_csv('Test.csv', index_col=False, sep=";", converters={'Color': teste})
+    train = pd.read_csv('Train.csv', index_col=False, sep=";",
+                        converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
+    test = pd.read_csv('Test.csv', index_col=False, sep=";",
+                       converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
     le = LabelEncoder()
-
-    ColorTrain = [list(map(float, hist)) for hist in train['Color']]
-    ColorTrain = np.array(ColorTrain)
+    ColorTrainH = [list(map(float, histH)) for histH in train['ColorH']]
+    ColorTrainH = np.array(ColorTrainH)
+    ColorTrainS = [list(map(float, histS)) for histS in train['ColorS']]
+    ColorTrainS = np.array(ColorTrainS)
+    ColorTrainV = [list(map(float, histV)) for histV in train['ColorV']]
+    ColorTrainV = np.array(ColorTrainV)
     colunasTrain = train.columns[1:9]
     TextureTrain = train[colunasTrain].values
-    FeaturesTrain = np.hstack((TextureTrain, ColorTrain))
-
+    colunaTrainColor = np.hstack((ColorTrainH, ColorTrainS, ColorTrainV))
+    FeaturesTrain = np.hstack((TextureTrain, colunaTrainColor))
     TextureLabelTrain = train['TextureLabel']
     le.fit(TextureLabelTrain)
     TextureLabelTrain = le.transform(TextureLabelTrain)
@@ -26,19 +31,22 @@ if __name__ == '__main__':
     le.fit(ColorLabelTrain)
     ColorLabelTrain = le.transform(ColorLabelTrain)
 
-    ColorTest = [list(map(float, hist)) for hist in test['Color']]
-    ColorTest = np.array(ColorTest)
+    ColorTestH = [list(map(float, histH)) for histH in test['ColorH']]
+    ColorTestH = np.array(ColorTestH)
+    ColorTestS = [list(map(float, histS)) for histS in test['ColorS']]
+    ColorTestS = np.array(ColorTestS)
+    ColorTestV = [list(map(float, histV)) for histV in test['ColorV']]
+    ColorTestV = np.array(ColorTestV)
     colunasTest = test.columns[1:9]
     TextureTest = test[colunasTest].values
-    FeaturesTest = np.hstack((TextureTest, ColorTest))
-
+    colunaTestColor = np.hstack((ColorTestH, ColorTestS, ColorTestV))
+    FeaturesTest = np.hstack((TextureTest, colunaTestColor))
     TextureLabelTest = test['TextureLabel']
     le.fit(TextureLabelTest)
     TextureLabelTest = le.transform(TextureLabelTest)
     ColorLabelTest = test['ColorLabel']
     le.fit(ColorLabelTest)
     ColorLabelTest = le.transform(ColorLabelTest)
-
     # #Create a based model
     # rf = RandomForestClassifier(random_state=42)
     # # Create the parameter grid based on the results of random search
@@ -52,7 +60,7 @@ if __name__ == '__main__':
     #      # Number of features to consider at every split
     #     'max_features': ['auto', 'sqrt'],
     #      # Maximum number of levels in tree
-    #     'max_depth': [int(x) for x in np.linspace(10, 50, num=11)],
+    #     'max_depth': [int(x) for x in np.linspace(10, 30, num=11)],
     #      # Minimum number of samples required to split a node
     #     'min_samples_split': [2, 5, 10,15],
     #      # Minimum number of samples required at each leaf node
@@ -106,4 +114,3 @@ if __name__ == '__main__':
     print("Accuracy for Random Forest on TEST data: ", accuracy_score(ColorLabelTest, pred))
     print("Confusion Matrix: ", confusion_matrix(ColorLabelTest, pred))
 
-# # #TODO https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74
