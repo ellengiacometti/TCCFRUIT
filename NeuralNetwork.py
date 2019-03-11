@@ -48,7 +48,7 @@ if __name__ == '__main__':
     ColorLabelTest = test['ColorLabel']
     le.fit(ColorLabelTest)
     ColorLabelTest = le.transform(ColorLabelTest)
-
+    #
     # """Grid Search"""
     # parameter_space = {
     #     'hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (5, 2),],
@@ -59,8 +59,8 @@ if __name__ == '__main__':
     #     'random_state':[1,5,10,15,20,30,40,50],
     # }
     # mlp = MLPClassifier(solver='lbfgs')
-    # clf = GridSearchCV(mlp, parameter_space, verbose=2,n_jobs=-1, cv=3)
-    # clf.fit(FeaturesTrain, ColorLabelTrain)
+    # clf = GridSearchCV(mlp, parameter_space, verbose=200,n_jobs=-1, cv=3)
+    # clf.fit(FeaturesTrain, TextureLabelTrain)
     # clf.best_params_
     # print(clf.best_params_)
 
@@ -69,7 +69,8 @@ if __name__ == '__main__':
     print("\n~~~ REDE NEURAL  - CLASSIFICADOR LISO X RUGOSO~~~")
 
     # 'activation': 'tanh', 'hidden_layer_sizes': (50, 50, 50), 'alpha': 0.05, 'learning_rate': 'constant', 'solver': 'adam', 'random_state': 50
-    clf_nnLR = MLPClassifier(activation= 'relu', hidden_layer_sizes= (50, 50, 50), alpha= 0.0001, learning_rate= 'constant', solver = 'lbfgs', random_state= 40)
+    # solver=lbfgs, alpha=0.0001, learning_rate=adaptive, random_state=30, activation=tanh, hidden_layer_sizes=(50, 50, 50)(86%)
+    clf_nnLR = MLPClassifier(activation= 'tanh', hidden_layer_sizes= (50, 50, 50), alpha= 0.0001, learning_rate= 'adaptive', solver = 'lbfgs', random_state= 30)
     clf_nnLR.fit(FeaturesTrain, TextureLabelTrain)
     # print("[STATUS] Predicting Trained DataBase..")
     predictionTrain = clf_nnLR.predict(FeaturesTrain)
@@ -82,7 +83,9 @@ if __name__ == '__main__':
     print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, predictionTest))
 
     print("\n~~~ REDE NEURAL - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
-    clf_nnCS = MLPClassifier(learning_rate= 'constant', solver= 'adam', activation='relu', random_state= 50, hidden_layer_sizes= (50, 50, 50), alpha= 0.05)
+    #aactivation=relu, learning_rate=adaptive, hidden_layer_sizes=(50, 50, 50), alpha=0.05, random_state=50, solver=adam,(83%)
+    #activation=relu, learning_rate=constant, hidden_layer_sizes=(50, 100, 50), alpha=0.05, random_state=15, solver=lbfgs(84%)
+    clf_nnCS = MLPClassifier(learning_rate= 'constant', solver= 'lbfgs', activation='relu', random_state= 15, hidden_layer_sizes= (50, 100, 50), alpha= 0.05)
     clf_nnCS.fit(FeaturesTrain, ColorLabelTrain)
     # print("[STATUS] Predicting Trained DataBase..")
     predictionTrain = clf_nnCS.predict(FeaturesTrain)

@@ -1,11 +1,16 @@
 import cv2 as cv
-import argparse
 import numpy as np
 from skimage.feature import greycomatrix, greycoprops
 import matplotlib.pyplot as plt
 from heapq import nlargest
 import matplotlib.patches as mpatches
+import matplotlib.lines as mlines
 from scipy.stats import kurtosis, skew
+from scipy.spatial import distance as dist
+from imutils import perspective
+from imutils import contours
+def midpoint(ptA, ptB):
+	return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
 def TrataImagem(src,visual,verbose):
     """Author: Ellen Giacometti
@@ -133,6 +138,43 @@ def TrataImagem(src,visual,verbose):
                 ax.plot(contornoCV[:, 0][:, 0], contornoCV[:, 0][:, 1], '-b', linewidth=2)
                 circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
                 ax.add_patch(circulo)
+
+                pixelsPerMetric = 47.5
+                # compute the rotated bounding box of the contour
+                box = cv.minAreaRect(contorno_util)
+                box = cv.boxPoints(box)
+                box = np.array(box, dtype="int")
+
+                # order the points in the contour such that they appear
+                # in top-left, top-right, bottom-right, and bottom-left
+                # order, then draw the outline of the rotated bounding
+                # box
+                box = perspective.order_points(box)
+                (tl, tr, br, bl) = box
+                (tltrX, tltrY) = midpoint(tl, tr)
+                (blbrX, blbrY) = midpoint(bl, br)
+
+                # compute the midpoint between the top-left and top-right points,
+                # followed by the midpoint between the top-righ and bottom-right
+                (tlblX, tlblY) = midpoint(tl, bl)
+                (trbrX, trbrY) = midpoint(tr, br)
+
+                                # draw lines between the midpoints
+                ax.add_line(mlines.Line2D([int(tltrX),int(blbrX)], [int(tltrY),int(blbrY)],color='white'))
+                ax.add_line(mlines.Line2D([int(tlblX), int(trbrX)], [int(tlblY), int(trbrY)],color='white'))
+
+                # compute the Euclidean distance between the midpoints
+                dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
+                dB = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
+
+                # compute the size of the object
+                dimA = dA / pixelsPerMetric
+                dimB = dB / pixelsPerMetric
+
+                # draw the object sizes on the image
+                plt.text(int(tltrX - 50), int(tltrY - 30), "{:.1f}cm".format(dimA),color='white')
+                plt.text(int(trbrX + 10), int(trbrY), "{:.1f}cm".format(dimB), color='white')
+
         plt.show()
         """DESENHANDO HISTOGRAMA"""
         plt.figure()
@@ -161,10 +203,11 @@ def TrataImagem(src,visual,verbose):
     if verbose==1:
         print("\n---~ INFORMAÇÕES - CONTORNO DO LIMÃO ~---")
         print("Número de Contornos Encontrados na Imagem:", tamanho_contornoCV)
-        print("Perímetro:", maioresCV[0][1])
+        print("Perímetro[cm]:", maioresCV[0][1]/pixelsPerMetric)
+        print("Dimensão[cm]:", "(",dimA, ",",dimB,")" , "\nCentro:", centroide)
         print("Centróide:(", cx, ",", cy, ")")
         print("\n---~ SIZE & SHAPE - CIRCUNFERÊNCIA ~---")
-        print("Raio:", raio, "\nCentro:", centroide)
+        print("Raio [cm]:", raio/pixelsPerMetric, "\nCentro:", centroide)
         print("\n---~ TEXTURE - KURTOSIS SKEWNESS~---")
         print("Kurtosis:",texture_Kurt,"\nSkewness:",texture_Skew)
         print("\n---~ TEXTURE - GLCM~---")
