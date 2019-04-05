@@ -1,6 +1,6 @@
 """Author: Ellen Giacometti
-    CRIADO EM: 21/12/2018
-    ÚLTIMA ATUALIZAÇÃO: 05/02/2019
+    CRIADO EM: 28/03/2019
+    ÚLTIMA ATUALIZAÇÃO: 01/04/2019
     DESC: Código tendo a planilha CSV cria um arquivo CSV com as features normalizadas/ standard """
 # https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-normalization
 # https://medium.com/@rrfd/standardize-or-normalize-examples-in-python-e3f174b65dfc
@@ -58,7 +58,8 @@ for i in infoRegionHists:
 raw_data = {'Object': train['Object'], 'Kurtosis': NormA_info[0], 'Skewness': NormA_info[1],
             'Dissimilarity': NormA_info[2], 'Correlation': NormA_info[3], 'Homogeneity': NormA_info[4],
             'Energy': NormA_info[5], 'Contrast': NormA_info[6], 'ASM': NormA_info[7],
-           'ColorH':NormA_info[8],'ColorS':NormA_info[9],'ColorV':NormA_info[10]}
+            'ColorH':NormA_info[8],'ColorS':NormA_info[9],'ColorV':NormA_info[10],
+            'TextureLabel':train['TextureLabel'],'ColorLabel':train['ColorLabel']}
 normA = pd.DataFrame(raw_data,columns=train.columns.values)
 normA.to_csv('normATrain.csv', index=False, sep=";")
 print("normATrain.csv CRIADO")
@@ -73,7 +74,9 @@ print("normATrain.csv CRIADO")
 
 raw_data = {'Object': train['Object'], 'Kurtosis': NormB_info[0], 'Skewness': NormB_info[1],
             'Dissimilarity': NormB_info[2], 'Correlation': NormB_info[3], 'Homogeneity': NormB_info[4],
-            'Energy': NormB_info[5], 'Contrast': NormB_info[6], 'ASM': NormB_info[7],'ColorH':NormB_info[8],'ColorS':NormB_info[9],'ColorV':NormB_info[10]}
+            'Energy': NormB_info[5], 'Contrast': NormB_info[6], 'ASM': NormB_info[7],
+            'ColorH':NormB_info[8],'ColorS':NormB_info[9],'ColorV':NormB_info[10],
+            'TextureLabel':train['TextureLabel'],'ColorLabel':train['ColorLabel'] }
 
 normB = pd.DataFrame(raw_data,columns=train.columns.values)
 normB.to_csv('normBTrain.csv', index=False, sep=";")
