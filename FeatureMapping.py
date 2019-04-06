@@ -20,12 +20,13 @@ def create_columns(n):
 
 paramIn = 13
 percent = 0.25
-accuracyRFLR=create_columns(paramIn)
-accuracyRFCS=create_columns(paramIn)
-accuracyNNLR=create_columns(paramIn)
-accuracyNNCS=create_columns(paramIn)
-accuracySVMLR=create_columns(paramIn)
-accuracySVMCS=create_columns(paramIn)
+paramInACCU = paramIn -1
+accuracyRFLR=create_columns(paramInACCU)
+accuracyRFCS=create_columns(paramInACCU)
+accuracyNNLR=create_columns(paramInACCU)
+accuracyNNCS=create_columns(paramInACCU)
+accuracySVMLR=create_columns(paramInACCU)
+accuracySVMCS=create_columns(paramInACCU)
 ## Reading CSV
 prop = lambda x: x.strip("[]").replace("'", "").split(", ")
 Norm = pd.read_csv('normBTrain.csv', index_col=False, sep=";",converters={'ColorH': prop, 'ColorS': prop, 'ColorV': prop})
@@ -79,58 +80,70 @@ for paramIn in  range(1,paramIn):
     clf_rfLR = RandomForestClassifier(max_depth=40, min_samples_leaf=1, min_samples_split=2, bootstrap=False,max_features='sqrt', n_estimators=20)
     clf_rfLR.fit(FeaturesTrain, TextureLabelTrain)
     predRFLR=clf_rfLR.predict(FeaturesTest)
-    accuracyRFLR[paramIn] = accuracy_score(TextureLabelTest,predRFLR)
+    paramInACCU = paramIn -1
+    accuracyRFLR[paramInACCU] = accuracy_score(TextureLabelTest,predRFLR)
 
     #Training CS Classifier
     clf_rfCS = RandomForestClassifier(max_depth=40, min_samples_leaf=1, min_samples_split=2, bootstrap=False, max_features='sqrt', n_estimators=20)
     clf_rfCS.fit(FeaturesTrain, ColorLabelTrain)
     predRFCS = clf_rfCS.predict(FeaturesTest)
-    accuracyRFCS[paramIn] = accuracy_score(ColorLabelTest,predRFCS)
+    accuracyRFCS[paramInACCU] = accuracy_score(ColorLabelTest,predRFCS)
     if paramIn<12:
          print("-----------++++", Norm.columns[paramIn],"++++-----------")
     else:
         print("------------++++ALL FEATURES++++------------")
     print("Accurácia RF -LR     |       Accurácia RF -CS")
-    print(accuracyRFLR[paramIn],"         ",accuracyRFCS[paramIn])
+    print(accuracyRFLR[paramInACCU],"         ",accuracyRFCS[paramInACCU])
 
     ## Neural Network
     # Training LR Classifier
     clf_nnLR = MLPClassifier(activation= 'tanh', hidden_layer_sizes= (50, 50, 50), alpha= 0.0001, learning_rate= 'adaptive', solver = 'lbfgs', random_state= 30)
     clf_nnLR.fit(FeaturesTrain, TextureLabelTrain)
     predNNLR = clf_nnLR.predict(FeaturesTest)
-    accuracyNNLR[paramIn]=accuracy_score(TextureLabelTest, predNNLR)
+    accuracyNNLR[paramInACCU]=accuracy_score(TextureLabelTest, predNNLR)
 
     #Training CS Classifier
     clf_nnCS = MLPClassifier(learning_rate='constant', solver='lbfgs', activation='relu', random_state=15,hidden_layer_sizes=(50, 100, 50), alpha=0.05)
     clf_nnCS.fit(FeaturesTrain, ColorLabelTrain)
     predNNCS = clf_nnCS.predict(FeaturesTest)
-    accuracyNNCS[paramIn] = accuracy_score(TextureLabelTest, predNNCS)
+    accuracyNNCS[paramInACCU] = accuracy_score(TextureLabelTest, predNNCS)
     print("+++--------------------------------+++")
     print("Accurácia NN -LR     |       Accurácia NN -CS")
-    print(accuracyNNLR[paramIn],"         ",accuracyNNCS[paramIn])
+    print(accuracyNNLR[paramInACCU],"         ",accuracyNNCS[paramInACCU])
 
     ## SVM
     # Training LR Classifier
     clf_svmLR = SVC(C=1, gamma=0.5,decision_function_shape = 'ovo',kernel='poly')
     clf_svmLR.fit(FeaturesTrain, TextureLabelTrain)
     predSVMLR = clf_svmLR.predict(FeaturesTest)
-    accuracySVMLR[paramIn] = accuracy_score(TextureLabelTest, predSVMLR)
+    accuracySVMLR[paramInACCU] = accuracy_score(TextureLabelTest, predSVMLR)
     # Training CS Classifier
     clf_svmCS = SVC(C=1, gamma=0.5, decision_function_shape='ovo', kernel='poly')
     clf_svmCS.fit(FeaturesTrain, ColorLabelTrain)
     predSVMCS = clf_svmCS.predict(FeaturesTest)
-    accuracySVMCS[paramIn] = accuracy_score(TextureLabelTest, predSVMCS)
+    accuracySVMCS[paramInACCU] = accuracy_score(TextureLabelTest, predSVMCS)
     print("+++--------------------------------+++")
     print("Accurácia SVM -LR     |       Accurácia SVM -CS")
-    print(accuracySVMLR[paramIn], "         ", accuracySVMCS[paramIn])
+    print(accuracySVMLR[paramInACCU], "         ", accuracySVMCS[paramInACCU])
 allfeat=pd.Index(["All Features"])
 CSVnamefeatures=Norm.columns[1:12].union(allfeat,sort=False)
-raw_data = {'Features':CSVnamefeatures,'Accuracy_RF':accuracyRFLR[1:],'Accuracy_NN':accuracyNNLR[1:],'Accuracy_SVM':accuracySVMLR[1:] }
+raw_data = {'Features':CSVnamefeatures,'Accuracy_RF':accuracyRFLR,'Accuracy_NN':accuracyNNLR,'Accuracy_SVM':accuracySVMLR }
 MapLR = pd.DataFrame(raw_data,columns=['Features','Accuracy_RF','Accuracy_NN','Accuracy_SVM'])
 MapLR.to_csv('FeatureMapLR.csv', index=False, sep=";")
 print("FeatureMapLR.csv CRIADO")
 
-raw_data = {'Features':CSVnamefeatures,'Accuracy_RF':accuracyRFCS[1:],'Accuracy_NN':accuracyNNCS[1:],'Accuracy_SVM':accuracySVMCS[1:] }
+raw_data = {'Features':CSVnamefeatures,'Accuracy_RF':accuracyRFCS,'Accuracy_NN':accuracyNNCS,'Accuracy_SVM':accuracySVMCS}
 MapCS = pd.DataFrame(raw_data,columns=['Features','Accuracy_RF','Accuracy_NN','Accuracy_SVM'])
 MapCS.to_csv('FeatureMapCS.csv', index=False, sep=";")
 print("FeatureMapCS.csv CRIADO")
+
+betaRFLR= [1- x for x in accuracyRFLR ]
+betaRFCS= [1- x for x in accuracyRFCS]
+betaNNLR= [1- x for x in accuracyNNLR]
+betaNNCS=[1- x for x in accuracyNNCS]
+betaSVMLR=[1- x for x in accuracySVMLR]
+betaSVMCS=[1- x for x in accuracySVMCS]
+##TODO: criar novo arquivo e ler planilha CSV FeatureMapCS E FeatureMapLR
+##TODO: (normalize(hist[:, np.newaxis], axis=0).ravel())
+##TODO:Multiplicar betaNorm por CADA feature RESPECTIVAMENTE
+##TODO: RODAR DE NOVO FEATUREMAPPING
