@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 
 def create_columns(n):
@@ -16,68 +18,119 @@ def create_columns(n):
         list_of_columns.append(0)
     return list_of_columns
 
-paramIn=12
-a=0
+paramIn = 13
+percent = 0.25
+accuracyRFLR=create_columns(paramIn)
+accuracyRFCS=create_columns(paramIn)
+accuracyNNLR=create_columns(paramIn)
+accuracyNNCS=create_columns(paramIn)
+accuracySVMLR=create_columns(paramIn)
+accuracySVMCS=create_columns(paramIn)
 ## Reading CSV
 prop = lambda x: x.strip("[]").replace("'", "").split(", ")
 Norm = pd.read_csv('normBTrain.csv', index_col=False, sep=";",converters={'ColorH': prop, 'ColorS': prop, 'ColorV': prop})
 ## Manipulating Columns Index to exclude a feature which index number is paramIn
-
-if paramIn<=9:
-    featInt = Norm.columns[1:paramIn]
-    featInt2 = Norm.columns[(paramIn+1):9]
-    colunas=featInt.union(featInt2,sort=False)
-    histColumns = Norm.columns[9:]
-else:
-    colunas=Norm.columns[1:9]
-    featHists = Norm.columns[9:paramIn]
-    featHists2 = Norm.columns[paramIn+1:12]
-    histColumns= featHists.union(featHists2,sort=False)
-    if paramIn != 12:
-        Color = create_columns(2)
-    else:
+for paramIn in  range(1,paramIn):
+    if paramIn<=9:
+        featInt = Norm.columns[1:paramIn]
+        featInt2 = Norm.columns[(paramIn+1):9]
+        colunas=featInt.union(featInt2,sort=False)
+        histColumns = Norm.columns[9:12]
         Color = create_columns(3)
+    elif paramIn>9 and paramIn<=12:
+        colunas=Norm.columns[1:9]
+        featHists = Norm.columns[9:paramIn]
+        featHists2 = Norm.columns[paramIn+1:12]
+        histColumns= featHists.union(featHists2,sort=False)
 
-for histColumn in histColumns:
-    Color[a] = [list(map(float, histH)) for histH in Norm[histColumn]]
-    Color[a] = np.array(Color[a])
-    a+=1
-colunaColor= Color[0]
-for b in range(1,a):
-    colunaColor= np.hstack((colunaColor, Color[b]))
+    else:
+        colunas = Norm.columns[1:9]
+        Color = create_columns(3)
+    a = 0
+    Color = create_columns(histColumns.size)
+    for histColumn in histColumns:
+        Color[a] = [list(map(float, histH)) for histH in Norm[histColumn]]
+        Color[a] = np.array(Color[a])
+        a+=1
+    colunaColor= Color[0]
+    for b in range(1,a):
+        colunaColor= np.hstack((colunaColor, Color[b]))
 
-Texture= Norm[colunas].values
-Features= np.hstack((Texture, colunaColor))
-le = LabelEncoder()
-TextureLabel = Norm['TextureLabel']
-le.fit(TextureLabel)
-TextureLabel = le.transform(TextureLabel)
-ColorLabel= Norm['ColorLabel']
-le.fit(ColorLabel)
-ColorLabel = le.transform(ColorLabel)
-sizeFeatures=Features.shape[0]
-sizeValidation = round((sizeFeatures)*0.25)
-FeaturesTrain=Features[0:(sizeFeatures-sizeValidation)]
-FeaturesTest=Features[(sizeFeatures-sizeValidation):sizeFeatures]
-TextureLabelTrain= TextureLabel[0:(sizeFeatures-sizeValidation)]
-TextureLabelTest=TextureLabel[(sizeFeatures-sizeValidation):sizeFeatures]
-ColorLabelTrain= ColorLabel[0:(sizeFeatures-sizeValidation)]
-ColorLabelTest=ColorLabel[(sizeFeatures-sizeValidation):sizeFeatures]
-## Random Forest
-#Training LR Classifier
-clf_rfLR = RandomForestClassifier(max_depth=40, min_samples_leaf=1, min_samples_split=2, bootstrap=False,max_features='sqrt', n_estimators=20)
-clf_rfLR.fit(FeaturesTrain, TextureLabelTrain)
-predLR=clf_rfLR.predict(FeaturesTest)
-accuracyLR = accuracy_score(TextureLabelTest,predLR)
+    Texture= Norm[colunas].values
+    Features= np.hstack((Texture, colunaColor))
+    le = LabelEncoder()
+    TextureLabel = Norm['TextureLabel']
+    le.fit(TextureLabel)
+    TextureLabel = le.transform(TextureLabel)
+    ColorLabel= Norm['ColorLabel']
+    le.fit(ColorLabel)
+    ColorLabel = le.transform(ColorLabel)
+    sizeFeatures=Features.shape[0]
+    sizeValidation = round((sizeFeatures)*percent)
+    FeaturesTrain=Features[0:(sizeFeatures-sizeValidation)]
+    FeaturesTest=Features[(sizeFeatures-sizeValidation):sizeFeatures]
+    TextureLabelTrain= TextureLabel[0:(sizeFeatures-sizeValidation)]
+    TextureLabelTest=TextureLabel[(sizeFeatures-sizeValidation):sizeFeatures]
+    ColorLabelTrain= ColorLabel[0:(sizeFeatures-sizeValidation)]
+    ColorLabelTest=ColorLabel[(sizeFeatures-sizeValidation):sizeFeatures]
 
-#Training CS Classifier
-clf_rfCS = RandomForestClassifier(max_depth=40, min_samples_leaf=1, min_samples_split=2, bootstrap=False, max_features='sqrt', n_estimators=20)
-clf_rfCS.fit(FeaturesTrain, ColorLabelTrain)
-predCS = clf_rfCS.predict(FeaturesTest)
-accuracyLR = accuracy_score(ColorLabelTest,predCS)
+    ## Random Forest
+    #Training LR Classifier
+    clf_rfLR = RandomForestClassifier(max_depth=40, min_samples_leaf=1, min_samples_split=2, bootstrap=False,max_features='sqrt', n_estimators=20)
+    clf_rfLR.fit(FeaturesTrain, TextureLabelTrain)
+    predRFLR=clf_rfLR.predict(FeaturesTest)
+    accuracyRFLR[paramIn] = accuracy_score(TextureLabelTest,predRFLR)
 
-print(predLR)
-print(predCS)
+    #Training CS Classifier
+    clf_rfCS = RandomForestClassifier(max_depth=40, min_samples_leaf=1, min_samples_split=2, bootstrap=False, max_features='sqrt', n_estimators=20)
+    clf_rfCS.fit(FeaturesTrain, ColorLabelTrain)
+    predRFCS = clf_rfCS.predict(FeaturesTest)
+    accuracyRFCS[paramIn] = accuracy_score(ColorLabelTest,predRFCS)
+    if paramIn<12:
+         print("-----------++++", Norm.columns[paramIn],"++++-----------")
+    else:
+        print("------------++++ALL FEATURES++++------------")
+    print("Accurácia RF -LR     |       Accurácia RF -CS")
+    print(accuracyRFLR[paramIn],"         ",accuracyRFCS[paramIn])
 
+    ## Neural Network
+    # Training LR Classifier
+    clf_nnLR = MLPClassifier(activation= 'tanh', hidden_layer_sizes= (50, 50, 50), alpha= 0.0001, learning_rate= 'adaptive', solver = 'lbfgs', random_state= 30)
+    clf_nnLR.fit(FeaturesTrain, TextureLabelTrain)
+    predNNLR = clf_nnLR.predict(FeaturesTest)
+    accuracyNNLR[paramIn]=accuracy_score(TextureLabelTest, predNNLR)
 
+    #Training CS Classifier
+    clf_nnCS = MLPClassifier(learning_rate='constant', solver='lbfgs', activation='relu', random_state=15,hidden_layer_sizes=(50, 100, 50), alpha=0.05)
+    clf_nnCS.fit(FeaturesTrain, ColorLabelTrain)
+    predNNCS = clf_nnCS.predict(FeaturesTest)
+    accuracyNNCS[paramIn] = accuracy_score(TextureLabelTest, predNNCS)
+    print("+++--------------------------------+++")
+    print("Accurácia NN -LR     |       Accurácia NN -CS")
+    print(accuracyNNLR[paramIn],"         ",accuracyNNCS[paramIn])
 
+    ## SVM
+    # Training LR Classifier
+    clf_svmLR = SVC(C=1, gamma=0.5,decision_function_shape = 'ovo',kernel='poly')
+    clf_svmLR.fit(FeaturesTrain, TextureLabelTrain)
+    predSVMLR = clf_svmLR.predict(FeaturesTest)
+    accuracySVMLR[paramIn] = accuracy_score(TextureLabelTest, predSVMLR)
+    # Training CS Classifier
+    clf_svmCS = SVC(C=1, gamma=0.5, decision_function_shape='ovo', kernel='poly')
+    clf_svmCS.fit(FeaturesTrain, ColorLabelTrain)
+    predSVMCS = clf_svmCS.predict(FeaturesTest)
+    accuracySVMCS[paramIn] = accuracy_score(TextureLabelTest, predSVMCS)
+    print("+++--------------------------------+++")
+    print("Accurácia SVM -LR     |       Accurácia SVM -CS")
+    print(accuracySVMLR[paramIn], "         ", accuracySVMCS[paramIn])
+allfeat=pd.Index(["All Features"])
+CSVnamefeatures=Norm.columns[1:12].union(allfeat,sort=False)
+raw_data = {'Features':CSVnamefeatures,'Accuracy_RF':accuracyRFLR[1:],'Accuracy_NN':accuracyNNLR[1:],'Accuracy_SVM':accuracySVMLR[1:] }
+MapLR = pd.DataFrame(raw_data,columns=['Features','Accuracy_RF','Accuracy_NN','Accuracy_SVM'])
+MapLR.to_csv('FeatureMapLR.csv', index=False, sep=";")
+print("FeatureMapLR.csv CRIADO")
+
+raw_data = {'Features':CSVnamefeatures,'Accuracy_RF':accuracyRFCS[1:],'Accuracy_NN':accuracyNNCS[1:],'Accuracy_SVM':accuracySVMCS[1:] }
+MapCS = pd.DataFrame(raw_data,columns=['Features','Accuracy_RF','Accuracy_NN','Accuracy_SVM'])
+MapCS.to_csv('FeatureMapCS.csv', index=False, sep=";")
+print("FeatureMapCS.csv CRIADO")
