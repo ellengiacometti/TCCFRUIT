@@ -6,6 +6,7 @@
 
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import normalize
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
@@ -143,7 +144,8 @@ betaNNLR= [1- x for x in accuracyNNLR]
 betaNNCS=[1- x for x in accuracyNNCS]
 betaSVMLR=[1- x for x in accuracySVMLR]
 betaSVMCS=[1- x for x in accuracySVMCS]
+
 ##TODO: criar novo arquivo e ler planilha CSV FeatureMapCS E FeatureMapLR
-##TODO: (normalize(hist[:, np.newaxis], axis=0).ravel())
+##TODO: (normalize(hist[:, np.newaxis], axis=0).ravel())/
 ##TODO:Multiplicar betaNorm por CADA feature RESPECTIVAMENTE
 ##TODO: RODAR DE NOVO FEATUREMAPPING
