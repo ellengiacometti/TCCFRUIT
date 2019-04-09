@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 if __name__ == '__main__':
 
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('Train.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
+    train = pd.read_csv('NormTrain658.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
     test = pd.read_csv('Test.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
     le = LabelEncoder()
 
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     # #               'kernel': ('linear', 'rbf', 'poly')}
     # #'class_weight': [{0: 1, 1: w2} for w2 in [1, 2, 4, 6, 10, 12]]
     # clf = GridSearchCV(svm, parameters,verbose = 100)
-    # clf.fit(FeaturesTrain, TextureLabelTrain)
+    # clf.fit(FeaturesTrain, ColorLabelTrain)
     # print(clf.best_params_)
 
 
@@ -79,39 +79,18 @@ if __name__ == '__main__':
 
     """CLASSIFICADOR LISO X RUGOSO"""
     print("\n~~~ SVM -  CLASSIFICADOR LISO X RUGOSO ~~~")
-    #print("[STATUS] Creating the classifier..")
-    clf_svmLR = SVC(C=1, gamma=0.5,decision_function_shape = 'ovo',kernel='poly')
-    # fit the training data and labels
-    #print ("[STATUS] Fitting data/label to model..")
+    clf_svmLR = SVC(random_state= 0, gamma= 0.5, C= 0.001, kernel= 'poly')
     clf_svmLR.fit(FeaturesTrain, TextureLabelTrain)
-
-    #print("[STATUS] Predicting TRAINED DataBase..")
-    predictionTrain = clf_svmLR.predict(FeaturesTrain)
-    print("Accuracy for SVM on TRAINED data: ", accuracy_score(TextureLabelTrain, predictionTrain))
-    print("Confusion Matrix: ", confusion_matrix(TextureLabelTrain, predictionTrain))
-
-    #print("[STATUS] Predicting TEST DataBase..")
     predictionTest = clf_svmLR.predict(FeaturesTest)
     print("Accuracy for SVM on TEST data: ", accuracy_score(TextureLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, predictionTest))
 
     """CLASSIFICADOR COM DEFEITO X SEM DEFEITO"""
     print("\n~~~ SVM - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
-    #print("[STATUS] Creating the classifier..")
-    clf_svmCS = SVC(C=1, gamma=0.5, decision_function_shape = 'ovo',kernel='poly')
-    # clf_svmCS = SVC(C=1, gamma=0.5, class_weight='balanced', decision_function_shape='ovo', kernel='poly')
-    # fit the training data and labels
-   # print ("[STATUS] Fitting data/label to model..")
+    clf_svmCS = SVC(C=0.001, gamma=0.5,kernel='poly',random_state=0)
     clf_svmCS.fit(FeaturesTrain, ColorLabelTrain)
-
-    #print("[STATUS] Predicting Trained DataBase..")
-    predictionTrain = clf_svmCS.predict(FeaturesTrain)
-    print("Accuracy for SVM on TRAINED data: ", accuracy_score(ColorLabelTrain, predictionTrain))
-    print("Confusion Matrix: ", confusion_matrix(ColorLabelTrain, predictionTrain))
-
-   # print("[STATUS] Predicting TEST DataBase..")
     predictionTest = clf_svmCS.predict(FeaturesTest)
     print("Accuracy for SVM on TEST data: ", accuracy_score(ColorLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(ColorLabelTest, predictionTest))
-   #
+
 
