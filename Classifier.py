@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 
-Names=['TrainArtigo.csv','TestArtigo.csv']
+Names=['Train.csv','Test.csv']
 def create_columns(n):
     list_of_columns = []
     for i in range(n):
@@ -15,19 +15,16 @@ def create_columns(n):
 for name in Names:
     prop = lambda x: x.strip("[]").replace("'", "").split(", ")
     # Data = pd.read_csv(name, index_col=False, sep=";",converters={'ColorH': prop, 'ColorS': prop, 'ColorV': prop})
-    Data = pd.read_csv(name, index_col=False, sep=";",converters={'ColorH': prop})
+    Data = pd.read_csv(name, index_col=False, sep=";",converters={'Color': prop})
     colunas = Data.columns[1:9]
-    histColumns = Data.columns[9:12]
+    histColumns = Data.columns[9]
     Color = create_columns(1)
-    for a in range(0,histColumns.size):
-        Color[a] = [list(map(float, histH)) for histH in Data[histColumns[a]]]
-        Color[a] = np.array(Color[a])
-        a += 1
+    Color[0] = [list(map(float, histH)) for histH in Data[histColumns]]
+    Color[0] = np.array(Color[0])
     colunaColor = Color[0]
-    for b in range(1, histColumns.size):
-        colunaColor = np.hstack((colunaColor, Color[b]))
 
-    if name=='Train.csv':
+
+    if name==Names[0]:
         TextureTrain = Data[colunas].values
         FeaturesTrain = np.hstack((TextureTrain, colunaColor))
         le = LabelEncoder()
@@ -87,3 +84,11 @@ clf_svmCS = SVC(C=1, gamma=0.5, decision_function_shape='ovo', kernel='poly')
 clf_svmCS.fit(FeaturesTrain, ColorLabelTrain)
 predSVMCS = clf_svmCS.predict(FeaturesTest)
 accuracySVMCS = accuracy_score(TextureLabelTest, predSVMCS)
+
+
+print('RF CS: ',accuracyRFCS)
+print('RF LR: ',accuracyRFLR)
+print('NN CS: ',accuracyNNCS)
+print('NN LR: ',accuracyNNLR)
+print('SVM CS: ',accuracySVMCS)
+print('SVM LR: ',accuracySVMLR)

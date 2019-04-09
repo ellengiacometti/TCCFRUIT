@@ -12,19 +12,20 @@ from sklearn.preprocessing import StandardScaler
 if __name__ == '__main__':
 
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('Train.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
-    test = pd.read_csv('Test.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
+    train = pd.read_csv('Train.csv', index_col=False, sep=";", converters={'Color': teste,'ColorS': teste,'ColorV': teste})
+    test = pd.read_csv('Test.csv', index_col=False, sep=";", converters={'Color': teste,'ColorS': teste,'ColorV': teste})
     le = LabelEncoder()
 
-    ColorTrainH = [list(map(float, histH)) for histH in train['ColorH']]
+    ColorTrainH = [list(map(float, histH)) for histH in train['Color']]
     ColorTrainH = np.array(ColorTrainH)
-    ColorTrainS = [list(map(float, histS)) for histS in train['ColorS']]
-    ColorTrainS = np.array(ColorTrainS)
-    ColorTrainV = [list(map(float, histV)) for histV in train['ColorV']]
-    ColorTrainV = np.array(ColorTrainV)
+    # ColorTrainS = [list(map(float, histS)) for histS in train['ColorS']]
+    # ColorTrainS = np.array(ColorTrainS)
+    # ColorTrainV = [list(map(float, histV)) for histV in train['ColorV']]
+    # ColorTrainV = np.array(ColorTrainV)
     colunasTrain = train.columns[1:9]
     TextureTrain=train[colunasTrain].values
-    colunaTrainColor = np.hstack((ColorTrainH, ColorTrainS, ColorTrainV))
+    # colunaTrainColor = np.hstack((ColorTrainH, ColorTrainS, ColorTrainV))
+    colunaTrainColor = ColorTrainH
     FeaturesTrain = np.hstack((TextureTrain,colunaTrainColor))
     TextureLabelTrain = train['TextureLabel']
     le.fit(TextureLabelTrain)
@@ -35,15 +36,16 @@ if __name__ == '__main__':
 
 
 
-    ColorTestH = [list(map(float, histH)) for histH in test['ColorH']]
+    ColorTestH = [list(map(float, histH)) for histH in test['Color']]
     ColorTestH = np.array(ColorTestH)
-    ColorTestS = [list(map(float, histS)) for histS in test['ColorS']]
-    ColorTestS = np.array(ColorTestS)
-    ColorTestV = [list(map(float, histV)) for histV in test['ColorV']]
-    ColorTestV = np.array(ColorTestV)
+    # ColorTestS = [list(map(float, histS)) for histS in test['ColorS']]
+    # ColorTestS = np.array(ColorTestS)
+    # ColorTestV = [list(map(float, histV)) for histV in test['ColorV']]
+    # ColorTestV = np.array(ColorTestV)
     colunasTest = test.columns[1:9]
     TextureTest = test[colunasTest].values
-    colunaTestColor = np.hstack((ColorTestH, ColorTestS, ColorTestV))
+    colunaTestColor = ColorTestH
+    # colunaTestColor = np.hstack((ColorTestH, ColorTestS, ColorTestV))
     FeaturesTest = np.hstack((TextureTest, colunaTestColor))
     TextureLabelTest= test['TextureLabel']
     le.fit(TextureLabelTest)
