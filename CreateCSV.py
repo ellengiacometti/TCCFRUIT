@@ -8,8 +8,8 @@ import pandas as pd
 from TrataImagem import TrataImagem
 
 """ Lendo Diretório """
-train_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_LABEL"
-test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_TEST"
+train_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PAPER DATASET/TRAIN BALANCED"
+test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PAPER DATASET/TEST"
 dir=[train_path,test_path]
 
 
@@ -32,6 +32,7 @@ for type_dir in dir:
     colorS = []
     colorV = []
     color_label = []
+    radius=[]
     for name in os.listdir(type_dir):
 
         cur_path = type_dir + "/" + name
@@ -53,10 +54,11 @@ for type_dir in dir:
             colorV.append(features[5])
             texture_label.append(cur_label[5])
             color_label.append(cur_label[6])
+            radius.append(features[2])
             i+=1
 
-    raw_data = {'Object':os.listdir(type_dir),'Kurtosis': Kurtosis,'Skewness':Skewness,'Dissimilarity':Dissimilarity,'Correlation':Correlation,'Homogeneity':Homogeneity,'Energy':Energy,'Contrast':Contrast, 'ASM':ASM,'ColorH': colorH,'ColorS': colorS,'ColorV': colorV,'TextureLabel':  texture_label,'ColorLabel': color_label}
-    df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness','Dissimilarity','Correlation','Homogeneity','Energy','Contrast', 'ASM', 'ColorH','ColorS','ColorV','TextureLabel','ColorLabel'])
+    raw_data = {'Object':os.listdir(type_dir),'Kurtosis': Kurtosis,'Skewness':Skewness,'Dissimilarity':Dissimilarity,'Correlation':Correlation,'Homogeneity':Homogeneity,'Energy':Energy,'Contrast':Contrast, 'ASM':ASM,'ColorH': colorH,'ColorS': colorS,'ColorV': colorV,'TextureLabel':  texture_label,'ColorLabel': color_label,'Radius':radius}
+    df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness','Dissimilarity','Correlation','Homogeneity','Energy','Contrast', 'ASM', 'ColorH','ColorS','ColorV','TextureLabel','ColorLabel','Radius'])
     valueType += 1
     if valueType==1:
         df.to_csv('Train.csv',index=False,sep=";")

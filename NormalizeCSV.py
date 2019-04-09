@@ -9,9 +9,9 @@ import pandas as pd
 from sklearn.preprocessing import normalize
 
 
-def create_columns(n):
+def create_columns(a):
     list_of_columns = []
-    for i in range(n):
+    for i in range(a):
         list_of_columns.append(0)
     return list_of_columns
 
@@ -21,38 +21,47 @@ train = pd.read_csv('Train.csv', index_col=False, sep=";",converters={'ColorH': 
 ## separar a info
 infoRegion = train.columns[1:9]
 info = train[infoRegion]
+infoMin=np.amin(info.values,axis=0)
+infoMax=np.amax(info.values,axis=0)
+num= info -infoMin
+den=infoMax-infoMin
+Norm_info= num/den
 ## normalizar info
 NormA_info=create_columns(11)
-NormB_info=create_columns(11)
-for n in range(0,len(infoRegion)):
-    feat= info[infoRegion[n]]
-    feat=feat.values
-    # NormA_info[n].append( np.array(feat/np.linalg.norm(feat)))
-    # NormB_info[n].append(normalize(feat[:, np.newaxis], axis=0).ravel())
-    NormA_info[n]= feat / np.linalg.norm(feat)
-    NormB_info[n]= normalize(feat[:,np.newaxis], axis=0).ravel()
-print("Wait a minute....")
+# NormB_info=create_columns(11)
+# for n in range(0,len(infoRegion)):
+#     feat= info[infoRegion[n]]
+#     feat=feat.values
+#     # NormA_info[n].append( np.array(feat/np.linalg.norm(feat)))
+#     # NormB_info[n].append(normalize(feat[:, np.newaxis], axis=0).ravel())
+#     NormA_info[n]= feat / np.linalg.norm(feat)
+#     NormB_info[n]= normalize(feat[:,np.newaxis], axis=0).ravel()
+# print("Wait a minute....")
+NormA_info[0:8] = Norm_info
 infoRegionHists = train.columns[9:12]
 infoHists=train[infoRegionHists]
 NormA_feat=[]
-NormB_feat =[]
+# NormB_feat =[]
 featHist=[]
-
+n=7
 for i in infoRegionHists:
     infoHist = infoHists[i]
     featHist = infoHist.values
     for hist in featHist:
         hist=np.float32(hist)
-        histNormA = (hist / np.linalg.norm(hist)).tolist()
-        histNormB = (normalize(hist[:, np.newaxis], axis=0).ravel()).tolist()
-        NormA_feat.append(histNormA)
-        NormB_feat.append(histNormB)
+        histMax=np.amax(hist,axis=0)
+        histNorm=hist/histMax
+        # histNormA = (hist / np.linalg.norm(hist)).tolist()
+        # histNormB = (normalize(hist[:, np.newaxis], axis=0).ravel()).tolist()
+        NormA_feat.append(histNorm)
+        # NormB_feat.append(histNormB)
     n += 1
     # corH=pd.Series(NormA_feat,index=['ColorH'])
     NormA_info[n] = NormA_feat
-    NormB_info[n] = NormB_feat
+    # NormB_info[n] = NormB_feat
+    # NormB_feat = []
     NormA_feat = []
-    NormB_feat = []
+
     print("Wait a minute....")
 
 raw_data = {'Object': train['Object'], 'Kurtosis': NormA_info[0], 'Skewness': NormA_info[1],
@@ -72,12 +81,12 @@ print("normATrain.csv CRIADO")
 # normBHist = pd.DataFrame(raw_dataHist, columns=['Object','ColorH'])
 # normBHist.to_csv('COLORB.csv', index=False, sep=";")
 
-raw_data = {'Object': train['Object'], 'Kurtosis': NormB_info[0], 'Skewness': NormB_info[1],
-            'Dissimilarity': NormB_info[2], 'Correlation': NormB_info[3], 'Homogeneity': NormB_info[4],
-            'Energy': NormB_info[5], 'Contrast': NormB_info[6], 'ASM': NormB_info[7],
-            'ColorH':NormB_info[8],'ColorS':NormB_info[9],'ColorV':NormB_info[10],
-            'TextureLabel':train['TextureLabel'],'ColorLabel':train['ColorLabel'] }
-
-normB = pd.DataFrame(raw_data,columns=train.columns.values)
-normB.to_csv('normBTrain.csv', index=False, sep=";")
-print("normBTrain.csv CRIADO")
+# raw_data = {'Object': train['Object'], 'Kurtosis': NormB_info[0], 'Skewness': NormB_info[1],
+#             'Dissimilarity': NormB_info[2], 'Correlation': NormB_info[3], 'Homogeneity': NormB_info[4],
+#             'Energy': NormB_info[5], 'Contrast': NormB_info[6], 'ASM': NormB_info[7],
+#             'ColorH':NormB_info[8],'ColorS':NormB_info[9],'ColorV':NormB_info[10],
+#             'TextureLabel':train['TextureLabel'],'ColorLabel':train['ColorLabel'] }
+#
+# normB = pd.DataFrame(raw_data,columns=train.columns.values)
+# normB.to_csv('normBTrain.csv', index=False, sep=";")
+# print("normBTrain.csv CRIADO")
