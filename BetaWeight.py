@@ -11,7 +11,7 @@ def create_columns(n):
 import numpy as np
 import pandas as pd
 prop = lambda x: x.strip("[]").replace("'", "").split(", ")
-Norm = pd.read_csv('normBTrain.csv', index_col=False, sep=";",converters={'ColorH': prop, 'ColorS': prop, 'ColorV': prop})
+Norm = pd.read_csv('NormTrain658.csv', index_col=False, sep=";",converters={'ColorH': prop, 'ColorS': prop, 'ColorV': prop})
 FeatureMapLR = pd.read_csv('FeatureMapLR.csv', index_col=False, sep=";")
 FeatureMapCS = pd.read_csv('FeatureMapCS.csv', index_col=False, sep=";")
 columnsLR=FeatureMapLR.columns[1:]

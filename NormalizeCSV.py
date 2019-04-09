@@ -23,56 +23,47 @@ infoRegion = train.columns[1:9]
 info = train[infoRegion]
 infoMin=np.amin(info.values,axis=0)
 infoMax=np.amax(info.values,axis=0)
-num= info -infoMin
+num= info.values - infoMin
 den=infoMax-infoMin
 Norm_info= num/den
-## normalizar info
-NormA_info=create_columns(11)
-# NormB_info=create_columns(11)
-# for n in range(0,len(infoRegion)):
-#     feat= info[infoRegion[n]]
-#     feat=feat.values
-#     # NormA_info[n].append( np.array(feat/np.linalg.norm(feat)))
-#     # NormB_info[n].append(normalize(feat[:, np.newaxis], axis=0).ravel())
-#     NormA_info[n]= feat / np.linalg.norm(feat)
-#     NormB_info[n]= normalize(feat[:,np.newaxis], axis=0).ravel()
+
 # print("Wait a minute....")
-NormA_info[0:8] = Norm_info
+
 infoRegionHists = train.columns[9:12]
 infoHists=train[infoRegionHists]
-NormA_feat=[]
-# NormB_feat =[]
+# NormA_feat=[]
+NormA_info=create_columns(3)
 featHist=[]
-n=7
+NormA_feat = []
+n=0
 for i in infoRegionHists:
     infoHist = infoHists[i]
     featHist = infoHist.values
     for hist in featHist:
-        hist=np.float32(hist)
+        hist=np.float64(hist)
         histMax=np.amax(hist,axis=0)
         histNorm=hist/histMax
-        # histNormA = (hist / np.linalg.norm(hist)).tolist()
-        # histNormB = (normalize(hist[:, np.newaxis], axis=0).ravel()).tolist()
-        NormA_feat.append(histNorm)
-        # NormB_feat.append(histNormB)
-    n += 1
+        NormA_feat.append(histNorm.tolist())
+
     # corH=pd.Series(NormA_feat,index=['ColorH'])
     NormA_info[n] = NormA_feat
-    # NormB_info[n] = NormB_feat
-    # NormB_feat = []
     NormA_feat = []
-
+    n += 1
     print("Wait a minute....")
 
-raw_data = {'Object': train['Object'], 'Kurtosis': NormA_info[0], 'Skewness': NormA_info[1],
-            'Dissimilarity': NormA_info[2], 'Correlation': NormA_info[3], 'Homogeneity': NormA_info[4],
-            'Energy': NormA_info[5], 'Contrast': NormA_info[6], 'ASM': NormA_info[7],
-            'ColorH':NormA_info[8],'ColorS':NormA_info[9],'ColorV':NormA_info[10],
-            'TextureLabel':train['TextureLabel'],'ColorLabel':train['ColorLabel']}
+raw_data = {'Object': train['Object'], 'Kurtosis': Norm_info[:,0].tolist(), 'Skewness': Norm_info[:,1].tolist(),
+            'Dissimilarity': Norm_info[:,2].tolist(), 'Correlation': Norm_info[:,3].tolist(), 'Homogeneity': Norm_info[:,4].tolist(),
+            'Energy': Norm_info[:,5].tolist(), 'Contrast': Norm_info[:,6].tolist(), 'ASM': Norm_info[:,7].tolist(),
+            'ColorH':NormA_info[0],'ColorS':NormA_info[1],'ColorV':NormA_info[2],
+            'TextureLabel':train['TextureLabel'],'ColorLabel':train['ColorLabel'],'Radius':train['Radius']}
 normA = pd.DataFrame(raw_data,columns=train.columns.values)
-normA.to_csv('normATrain.csv', index=False, sep=";")
-print("normATrain.csv CRIADO")
+normA.to_csv('NormTrain658.csv', index=False, sep=";")
+print("NormTrain658.csv CRIADO")
 
+parameterData= {'Feature': infoRegion.T, 'Max':infoMax,'Min':infoMin }
+Data = pd.DataFrame(parameterData,columns=['Feature','Max','Min'])
+Data.to_csv('Data_NormTrain658.csv', index=False, sep=";")
+print("Data_NormTrain658.csv CRIADO")
 #
 # raw_dataHist = {'Object': train['Object'], 'ColorH':NormA_info[8] }
 # normAHist = pd.DataFrame(raw_dataHist, columns=['Object','ColorH'])
