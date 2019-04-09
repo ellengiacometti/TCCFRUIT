@@ -19,6 +19,7 @@ valueType = 0
 for type_dir in dir:
     """ Definindo Variáveis """
     i=1
+    raio = []
     Kurtosis = []
     Skewness = []
     Dissimilarity = []
@@ -49,23 +50,29 @@ for type_dir in dir:
             Contrast.append(features[12])
             ASM .append(features[13])
             colorH.append(features[3])
-            colorS.append(features[4])
-            colorV.append(features[5])
+            # colorS.append(features[4])
+            # colorV.append(features[5])
             texture_label.append(cur_label[5])
             color_label.append(cur_label[6])
+            raio.append(features[2])
             i+=1
 
-    raw_data = {'Object':os.listdir(type_dir),'Kurtosis': Kurtosis,'Skewness':Skewness,'Dissimilarity':Dissimilarity,'Correlation':Correlation,'Homogeneity':Homogeneity,'Energy':Energy,'Contrast':Contrast, 'ASM':ASM,'ColorH': colorH,'ColorS': colorS,'ColorV': colorV,'TextureLabel':  texture_label,'ColorLabel': color_label}
-    df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness','Dissimilarity','Correlation','Homogeneity','Energy','Contrast', 'ASM', 'ColorH','ColorS','ColorV','TextureLabel','ColorLabel'])
+    # raw_data = {'Object':os.listdir(type_dir),'Kurtosis': Kurtosis,'Skewness':Skewness,'Dissimilarity':Dissimilarity,'Correlation':Correlation,'Homogeneity':Homogeneity,'Energy':Energy,'Contrast':Contrast, 'ASM':ASM,'ColorH': colorH,'ColorS': colorS,'ColorV': colorV,'TextureLabel':  texture_label,'ColorLabel': color_label,'Raio':raio}
+    raw_data = {'Object': os.listdir(type_dir), 'Kurtosis': Kurtosis, 'Skewness': Skewness,
+                'Dissimilarity': Dissimilarity, 'Correlation': Correlation, 'Homogeneity': Homogeneity,
+                'Energy': Energy, 'Contrast': Contrast, 'ASM': ASM, 'ColorH': colorH,'TextureLabel': texture_label, 'ColorLabel': color_label, 'Raio': raio}
+    # df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness','Dissimilarity','Correlation','Homogeneity','Energy','Contrast', 'ASM', 'ColorH','ColorS','ColorV','TextureLabel','ColorLabel','Raio'])
+    df = pd.DataFrame(raw_data,
+                      columns=['Object', 'Kurtosis', 'Skewness', 'Dissimilarity', 'Correlation', 'Homogeneity',
+                               'Energy', 'Contrast', 'ASM', 'ColorH',  'TextureLabel', 'ColorLabel',
+                               'Raio'])
     valueType += 1
     if valueType==1:
-        df.to_csv('Train.csv',index=False,sep=";")
-        print("Train.csv CRIADO")
+        df.to_csv('TrainH.csv',index=False,sep=";")
+        print("TrainH.csv CRIADO")
     else:
-        df.to_csv('Test.csv', index=False, sep=";")
-        print("Test.csv CRIADO")
-
-
+        df.to_csv('TestH.csv', index=False, sep=";")
+        print("TestH.csv CRIADO")
 # """Fit The Label Encoder"""
 # # Create a label (category) encoder object
 # le = preprocessing.LabelEncoder()

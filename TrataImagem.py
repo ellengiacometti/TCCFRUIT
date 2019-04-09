@@ -176,6 +176,7 @@ def TrataImagem(src,visual,verbose):
                 plt.text(int(trbrX + 10), int(trbrY), "{:.1f}cm".format(dimB), color='white')
 
         plt.show()
+
         """DESENHANDO HISTOGRAMA"""
         plt.figure()
         plt.title("H Histogram")
@@ -201,6 +202,7 @@ def TrataImagem(src,visual,verbose):
 
     """GERANDO RELATÓRIO """
     if verbose==1:
+
         print("\n---~ INFORMAÇÕES - CONTORNO DO LIMÃO ~---")
         print("Número de Contornos Encontrados na Imagem:", tamanho_contornoCV)
         print("Perímetro[cm]:", maioresCV[0][1]/pixelsPerMetric)
@@ -217,8 +219,9 @@ def TrataImagem(src,visual,verbose):
         print("Energy:", energy)
         print("Contrast:", contrast)
         print("ASM:", ASM)
-
-    return [x, y, raio, histH, histS, histV, texture_Kurt, texture_Skew,dissimilarity,correlation,homogeneity,energy,contrast,ASM]
+    pixelsPerMetric = 47.5
+    radius = raio / pixelsPerMetric
+    return [x, y, radius, histH, histS, histV, texture_Kurt, texture_Skew,dissimilarity,correlation,homogeneity,energy,contrast,ASM]
 
 
 
