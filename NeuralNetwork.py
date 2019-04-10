@@ -9,7 +9,7 @@ from sklearn.preprocessing import LabelEncoder
 
 if __name__ == '__main__':
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('Train.csv', index_col=False, sep=";",
+    train = pd.read_csv('NormTrain658.csv', index_col=False, sep=";",
                         converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
     test = pd.read_csv('Test.csv', index_col=False, sep=";",
                        converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     ColorLabelTest = test['ColorLabel']
     le.fit(ColorLabelTest)
     ColorLabelTest = le.transform(ColorLabelTest)
-    #
+
     # """Grid Search"""
     # parameter_space = {
     #     'hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (5, 2),],
@@ -60,38 +60,20 @@ if __name__ == '__main__':
     # }
     # mlp = MLPClassifier(solver='lbfgs')
     # clf = GridSearchCV(mlp, parameter_space, verbose=200,n_jobs=-1, cv=3)
-    # clf.fit(FeaturesTrain, TextureLabelTrain)
+    # clf.fit(FeaturesTrain, ColorLabelTrain)
     # clf.best_params_
     # print(clf.best_params_)
-
-    #{'alpha': 0.0001, 'learning_rate': 'constant', 'activation': 'relu', 'hidden_layer_sizes': (50, 50, 50), 'random_state': 40, 'solver': 'lbfgs'}
-
     print("\n~~~ REDE NEURAL  - CLASSIFICADOR LISO X RUGOSO~~~")
 
-    # 'activation': 'tanh', 'hidden_layer_sizes': (50, 50, 50), 'alpha': 0.05, 'learning_rate': 'constant', 'solver': 'adam', 'random_state': 50
-    # solver=lbfgs, alpha=0.0001, learning_rate=adaptive, random_state=30, activation=tanh, hidden_layer_sizes=(50, 50, 50)(86%)
-    clf_nnLR = MLPClassifier(activation= 'tanh', hidden_layer_sizes= (50, 50, 50), alpha= 0.0001, learning_rate= 'adaptive', solver = 'lbfgs', random_state= 30)
+    clf_nnLR = MLPClassifier(hidden_layer_sizes= (5, 2), solver= 'lbfgs', activation= 'tanh', learning_rate= 'constant', random_state= 5, alpha= 1)
     clf_nnLR.fit(FeaturesTrain, TextureLabelTrain)
-    # print("[STATUS] Predicting Trained DataBase..")
-    predictionTrain = clf_nnLR.predict(FeaturesTrain)
-    print("Accuracy for Neural Network on TRAINED data: ", accuracy_score(TextureLabelTrain, predictionTrain))
-    print("Confusion Matrix: ", confusion_matrix(TextureLabelTrain, predictionTrain))
-
-    # print("[STATUS] Predicting TEST DataBase..")
     predictionTest = clf_nnLR.predict(FeaturesTest)
     print("Accuracy for Neural Network on TEST data: ", accuracy_score(TextureLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, predictionTest))
 
     print("\n~~~ REDE NEURAL - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
-    #aactivation=relu, learning_rate=adaptive, hidden_layer_sizes=(50, 50, 50), alpha=0.05, random_state=50, solver=adam,(83%)
-    #activation=relu, learning_rate=constant, hidden_layer_sizes=(50, 100, 50), alpha=0.05, random_state=15, solver=lbfgs(84%)
-    clf_nnCS = MLPClassifier(learning_rate= 'constant', solver= 'lbfgs', activation='relu', random_state= 15, hidden_layer_sizes= (50, 100, 50), alpha= 0.05)
+    clf_nnCS = MLPClassifier(activation= 'relu', learning_rate= 'constant', random_state= 1, hidden_layer_sizes= (50, 100, 50), alpha= 1e-05, solver= 'adam')
     clf_nnCS.fit(FeaturesTrain, ColorLabelTrain)
-    # print("[STATUS] Predicting Trained DataBase..")
-    predictionTrain = clf_nnCS.predict(FeaturesTrain)
-    print("Accuracy for Neural Network on TRAINED data: ", accuracy_score(ColorLabelTrain, predictionTrain))
-    print("Confusion Matrix: ", confusion_matrix(ColorLabelTrain, predictionTrain))
-
     # print("[STATUS] Predicting TEST DataBase..")
     predictionTest = clf_nnCS.predict(FeaturesTest)
     print("Accuracy for Neural Network on TEST data: ", accuracy_score(ColorLabelTest, predictionTest))
