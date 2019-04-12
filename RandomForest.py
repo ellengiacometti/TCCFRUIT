@@ -9,9 +9,9 @@ from sklearn.preprocessing import LabelEncoder
 
 if __name__ == '__main__':
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('Train.csv', index_col=False, sep=";",
+    train = pd.read_csv('RFNormLR.csv', index_col=False, sep=";",
                         converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
-    test = pd.read_csv('Test.csv', index_col=False, sep=";",
+    test = pd.read_csv('NormTest160.csv', index_col=False, sep=";",
                        converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
     le = LabelEncoder()
     ColorTrainH = [list(map(float, histH)) for histH in train['ColorH']]

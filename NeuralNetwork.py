@@ -11,7 +11,7 @@ if __name__ == '__main__':
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
     train = pd.read_csv('NormTrain658.csv', index_col=False, sep=";",
                         converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
-    test = pd.read_csv('Test.csv', index_col=False, sep=";",
+    test = pd.read_csv('NormTest160.csv', index_col=False, sep=";",
                        converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
     le = LabelEncoder()
 
