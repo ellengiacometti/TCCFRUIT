@@ -9,9 +9,9 @@ from sklearn.preprocessing import LabelEncoder
 
 if __name__ == '__main__':
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('Train.csv', index_col=False, sep=";",
+    train = pd.read_csv('Train1200.csv', index_col=False, sep=";",
                         converters={'Color': teste})
-    test = pd.read_csv('Test.csv', index_col=False, sep=";",
+    test = pd.read_csv('Test1200.csv', index_col=False, sep=";",
                        converters={'Color': teste})
     le = LabelEncoder()
     ColorTrainH = [list(map(float, histH)) for histH in train['Color']]
@@ -101,6 +101,9 @@ if __name__ == '__main__':
     #print("[STATUS] Fitting data/label to model..")
     clf_rfLR.fit(FeaturesTrain, TextureLabelTrain)
     #print("[STATUS] Predicting Trained DataBase..")
+    predictionTrain = clf_rfLR.predict(FeaturesTrain)
+    print("Accuracy for Random Foreston TRAINED data: ", accuracy_score(TextureLabelTrain, predictionTrain))
+    print("Confusion Matrix: ", confusion_matrix(TextureLabelTrain, predictionTrain))
     pred=clf_rfLR.predict(FeaturesTest)
     print("Accuracy for Random Forest on TEST data: ",accuracy_score(TextureLabelTest,pred))
     print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, pred))
@@ -112,6 +115,9 @@ if __name__ == '__main__':
     #print("[STATUS] Fitting data/label to model..")
     clf_rfCS.fit(FeaturesTrain, ColorLabelTrain)
     #print("[STATUS] Predicting Trained DataBase..")
+    predictionTrain = clf_rfCS.predict(FeaturesTrain)
+    print("Accuracy for Random Forest on TRAINED data: ", accuracy_score(ColorLabelTrain, predictionTrain))
+    print("Confusion Matrix: ", confusion_matrix(ColorLabelTrain, predictionTrain))
     pred = clf_rfCS.predict(FeaturesTest)
     print("Accuracy for Random Forest on TEST data: ", accuracy_score(ColorLabelTest, pred))
     print("Confusion Matrix: ", confusion_matrix(ColorLabelTest, pred))

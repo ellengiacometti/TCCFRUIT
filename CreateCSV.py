@@ -8,8 +8,8 @@ import pandas as pd
 from TrataImagem import TrataImagem
 
 """ Lendo Diretório """
-train_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_LABEL"
-test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/PIC_LM_TEST"
+train_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/TRAIN1200"
+test_path = "/home/ellengiacometti/PycharmProjects/TCCFRUIT/TEST1200"
 dir=[train_path,test_path]
 
 
@@ -60,19 +60,19 @@ for type_dir in dir:
     # raw_data = {'Object':os.listdir(type_dir),'Kurtosis': Kurtosis,'Skewness':Skewness,'Dissimilarity':Dissimilarity,'Correlation':Correlation,'Homogeneity':Homogeneity,'Energy':Energy,'Contrast':Contrast, 'ASM':ASM,'ColorH': colorH,'ColorS': colorS,'ColorV': colorV,'TextureLabel':  texture_label,'ColorLabel': color_label,'Raio':raio}
     raw_data = {'Object': os.listdir(type_dir), 'Kurtosis': Kurtosis, 'Skewness': Skewness,
                 'Dissimilarity': Dissimilarity, 'Correlation': Correlation, 'Homogeneity': Homogeneity,
-                'Energy': Energy, 'Contrast': Contrast, 'ASM': ASM, 'ColorH': colorH,'TextureLabel': texture_label, 'ColorLabel': color_label, 'Raio': raio}
+                'Energy': Energy, 'Contrast': Contrast, 'ASM': ASM, 'Color': colorH,'TextureLabel': texture_label, 'ColorLabel': color_label, 'Raio': raio}
     # df = pd.DataFrame(raw_data, columns = ['Object','Kurtosis','Skewness','Dissimilarity','Correlation','Homogeneity','Energy','Contrast', 'ASM', 'ColorH','ColorS','ColorV','TextureLabel','ColorLabel','Raio'])
     df = pd.DataFrame(raw_data,
                       columns=['Object', 'Kurtosis', 'Skewness', 'Dissimilarity', 'Correlation', 'Homogeneity',
-                               'Energy', 'Contrast', 'ASM', 'ColorH',  'TextureLabel', 'ColorLabel',
+                               'Energy', 'Contrast', 'ASM', 'Color',  'TextureLabel', 'ColorLabel',
                                'Raio'])
     valueType += 1
     if valueType==1:
-        df.to_csv('TrainH.csv',index=False,sep=";")
-        print("TrainH.csv CRIADO")
+        df.to_csv('Train1200.csv',index=False,sep=";")
+        print("Train1200.csv CRIADO")
     else:
-        df.to_csv('TestH.csv', index=False, sep=";")
-        print("TestH.csv CRIADO")
+        df.to_csv('Test1200.csv', index=False, sep=";")
+        print("Test1200.csv CRIADO")
 # """Fit The Label Encoder"""
 # # Create a label (category) encoder object
 # le = preprocessing.LabelEncoder()

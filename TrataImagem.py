@@ -139,7 +139,7 @@ def TrataImagem(src,visual,verbose):
                 circulo = mpatches.Circle((x, y), raio, fill=False, edgecolor='red', linewidth=2)
                 ax.add_patch(circulo)
 
-                pixelsPerMetric = 47.5
+                pixelsPerMetric = 4.75
                 # compute the rotated bounding box of the contour
                 box = cv.minAreaRect(contorno_util)
                 box = cv.boxPoints(box)
@@ -159,9 +159,10 @@ def TrataImagem(src,visual,verbose):
                 (tlblX, tlblY) = midpoint(tl, bl)
                 (trbrX, trbrY) = midpoint(tr, br)
 
-                                # draw lines between the midpoints
-                ax.add_line(mlines.Line2D([int(tltrX),int(blbrX)], [int(tltrY),int(blbrY)],color='white'))
-                ax.add_line(mlines.Line2D([int(tlblX), int(trbrX)], [int(tlblY), int(trbrY)],color='white'))
+                # draw lines between the midpoints
+                ax.add_line(mlines.Line2D([int(x), int(y)], [int(x), int(y+raio)], color='yellow'))
+                # ax.add_line(mlines.Line2D([int(tltrX),int(blbrX)], [int(tltrY),int(blbrY)],color='white'))
+                # ax.add_line(mlines.Line2D([int(tlblX), int(trbrX)], [int(tlblY), int(trbrY)],color='white'))
 
                 # compute the Euclidean distance between the midpoints
                 dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
@@ -172,9 +173,10 @@ def TrataImagem(src,visual,verbose):
                 dimB = dB / pixelsPerMetric
 
                 # draw the object sizes on the image
-                plt.text(int(tltrX - 50), int(tltrY - 30), "{:.1f}cm".format(dimA),color='white')
-                plt.text(int(trbrX + 10), int(trbrY), "{:.1f}cm".format(dimB), color='white')
-
+                plt.scatter(x,y,c='yellow',s=10)
+                # plt.text(int(tltrX - 50), int(tltrY - 30), "{:.1f}mm".format(dimA),color='white')
+                # plt.text(int(trbrX + 50), int(trbrY+10), "{:.1f}mm".format(dimB), color='white')
+                plt.text(int(x-15), int(y+raio +30), "{:.1f}mm".format(raio/pixelsPerMetric), color='yellow')
         plt.show()
 
         """DESENHANDO HISTOGRAMA"""

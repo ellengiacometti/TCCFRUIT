@@ -12,8 +12,8 @@ from sklearn.preprocessing import StandardScaler
 if __name__ == '__main__':
 
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('Train.csv', index_col=False, sep=";", converters={'Color': teste,'ColorS': teste,'ColorV': teste})
-    test = pd.read_csv('Test.csv', index_col=False, sep=";", converters={'Color': teste,'ColorS': teste,'ColorV': teste})
+    train = pd.read_csv('Train1200.csv', index_col=False, sep=";", converters={'Color': teste,'ColorS': teste,'ColorV': teste})
+    test = pd.read_csv('Test1200.csv', index_col=False, sep=";", converters={'Color': teste,'ColorS': teste,'ColorV': teste})
     le = LabelEncoder()
 
     ColorTrainH = [list(map(float, histH)) for histH in train['Color']]
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     """CLASSIFICADOR LISO X RUGOSO"""
     print("\n~~~ SVM -  CLASSIFICADOR LISO X RUGOSO ~~~")
     #print("[STATUS] Creating the classifier..")
-    clf_svmLR = SVC(C=1, gamma=0.5,decision_function_shape = 'ovo',kernel='poly')
+    clf_svmLR = SVC(C=1, gamma=0.5, decision_function_shape = 'ovo',kernel='poly')
     # fit the training data and labels
     #print ("[STATUS] Fitting data/label to model..")
     clf_svmLR.fit(FeaturesTrain, TextureLabelTrain)
