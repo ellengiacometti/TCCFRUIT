@@ -70,9 +70,9 @@ if __name__ == '__main__':
 
     print("\n~~~ REDE NEURAL  - CLASSIFICADOR LISO X RUGOSO~~~")
 
-    # 'activation': 'tanh', 'hidden_layer_sizes': (50, 50, 50), 'alpha': 0.05, 'learning_rate': 'constant', 'solver': 'adam', 'random_state': 50
-    # solver=lbfgs, alpha=0.0001, learning_rate=adaptive, random_state=30, activation=tanh, hidden_layer_sizes=(50, 50, 50)(86%)
-    clf_nnLR = MLPClassifier(activation= 'relu', hidden_layer_sizes= (50, 50, 50), alpha= 0.0001, learning_rate= 'constant', solver = 'lbfgs', random_state= 40)
+    # {'random_state': 50, 'learning_rate': 'constant', 'solver': 'adam', 'hidden_layer_sizes': (50, 100, 50),
+    #  'activation': 'relu', 'alpha': 1e-06}
+    clf_nnLR = MLPClassifier(activation= 'relu', hidden_layer_sizes= (50, 100, 50), alpha= 1e-06, learning_rate= 'constant', solver = 'adam', random_state= 50)
     clf_nnLR.fit(FeaturesTrain, TextureLabelTrain)
     # print("[STATUS] Predicting Trained DataBase..")
     predictionTrain = clf_nnLR.predict(FeaturesTrain)
@@ -88,7 +88,9 @@ if __name__ == '__main__':
     #activation=relu, learning_rate=adaptive, hidden_layer_sizes=(50, 50, 50), alpha=0.05, random_state=50, solver=adam,(83%)
     #activation=relu, learning_rate=constant, hidden_layer_sizes=(50, 100, 50), alpha=0.05, random_state=15, solver=lbfgs(84%)
     # (solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state = 1)
-    clf_nnCS = MLPClassifier(activation='relu', learning_rate='constant', hidden_layer_sizes=(50, 100, 50), alpha=0.05, random_state=15, solver='lbfgs')
+    # {'hidden_layer_sizes': (50, 100, 50), 'solver': 'lbfgs', 'alpha': 0.05, 'random_state': 40, 'activation': 'relu', 'learning_rate': 'constant'}
+    clf_nnCS = MLPClassifier(activation='relu', learning_rate='adaptive', hidden_layer_sizes=(50, 50, 50), alpha=0.05,
+                             random_state=50, solver='adam')
     clf_nnCS.fit(FeaturesTrain, ColorLabelTrain)
     # print("[STATUS] Predicting Trained DataBase..")
     predictionTrain = clf_nnCS.predict(FeaturesTrain)

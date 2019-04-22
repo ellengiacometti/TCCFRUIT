@@ -58,12 +58,12 @@ if __name__ == '__main__':
     #  # create the SVM classifier
     # svm = SVC()
     #
-    # parameters = {'C': (1, 0.25, 0.5, 0.75, 0.05, 0.001, 0.01, 0.1, 100, 10, 1000), 'gamma': (0.5,1,3,'auto'),'kernel':('poly','rbf'),'random_state':[int(x) for x in np.linspace(start=0, stop=1000, num=10)]}
+    # parameters = {'C': (1, 0.25, 0.5, 0.75, 0.05, 0.001, 0.01, 0.1, 100, 10, 1000), 'gamma': (0.5,1,2,3,'auto'),'kernel':('poly','rbf'),'random_state':[int(x) for x in np.linspace(start=0, stop=1000, num=10)]}
     # # parameters = {'C': (1, 0.25, 0.5, 0.75, 0.05, 0.001, 0.01, 0.1, 100, 10, 1000), 'gamma': (0.5, 1, 2, 3, 'auto'),
     # #               'kernel': ('linear', 'rbf', 'poly')}
     # #'class_weight': [{0: 1, 1: w2} for w2 in [1, 2, 4, 6, 10, 12]]
     # clf = GridSearchCV(svm, parameters,verbose = 100)
-    # clf.fit(FeaturesTrain, TextureLabelTrain)
+    # clf.fit(FeaturesTrain, ColorLabelTrain)
     # print(clf.best_params_)
 
 
@@ -82,7 +82,8 @@ if __name__ == '__main__':
     """CLASSIFICADOR LISO X RUGOSO"""
     print("\n~~~ SVM -  CLASSIFICADOR LISO X RUGOSO ~~~")
     #print("[STATUS] Creating the classifier..")
-    clf_svmLR = SVC(C=1, gamma=0.5, decision_function_shape = 'ovo',kernel='poly')
+
+    clf_svmLR = SVC(C=1, gamma=0.5,kernel='poly',random_state= 0)
     # fit the training data and labels
     #print ("[STATUS] Fitting data/label to model..")
     clf_svmLR.fit(FeaturesTrain, TextureLabelTrain)
@@ -100,7 +101,8 @@ if __name__ == '__main__':
     """CLASSIFICADOR COM DEFEITO X SEM DEFEITO"""
     print("\n~~~ SVM - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
     #print("[STATUS] Creating the classifier..")
-    clf_svmCS = SVC(C=1, gamma=0.5, decision_function_shape = 'ovo',kernel='poly')
+
+    clf_svmCS = SVC(C=1, gamma=0.5,kernel='poly',random_state= 0)
     # clf_svmCS = SVC(C=1, gamma=0.5, class_weight='balanced', decision_function_shape='ovo', kernel='poly')
     # fit the training data and labels
    # print ("[STATUS] Fitting data/label to model..")
