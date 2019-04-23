@@ -12,8 +12,8 @@ from sklearn.preprocessing import StandardScaler
 if __name__ == '__main__':
 
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('NormTrain658.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
-    test = pd.read_csv('NormTest160.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
+    train = pd.read_csv('TrainAR1200.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
+    test = pd.read_csv('TestAR1200.csv', index_col=False, sep=";", converters={'ColorH': teste,'ColorS': teste,'ColorV': teste})
     le = LabelEncoder()
 
     ColorTrainH = [list(map(float, histH)) for histH in train['ColorH']]
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     # #               'kernel': ('linear', 'rbf', 'poly')}
     # #'class_weight': [{0: 1, 1: w2} for w2 in [1, 2, 4, 6, 10, 12]]
     # clf = GridSearchCV(svm, parameters,verbose = 100)
-    # clf.fit(FeaturesTrain, ColorLabelTrain)
+    # clf.fit(FeaturesTrain, TextureLabelTrain)
     # print(clf.best_params_)
 
 
@@ -79,8 +79,11 @@ if __name__ == '__main__':
 
     """CLASSIFICADOR LISO X RUGOSO"""
     print("\n~~~ SVM -  CLASSIFICADOR LISO X RUGOSO ~~~")
-    clf_svmLR = SVC(random_state= 0, gamma= 0.5, C= 0.001, kernel= 'poly')
+    clf_svmLR = SVC(kernel= 'poly', random_state= 0, gamma= 0.5, C= 1)
     clf_svmLR.fit(FeaturesTrain, TextureLabelTrain)
+    predictionTrain = clf_svmLR.predict(FeaturesTrain)
+    print("Accuracy for SVM on TRAIN data: ", accuracy_score(TextureLabelTrain, predictionTrain))
+    print("Confusion Matrix: ", confusion_matrix(TextureLabelTrain, predictionTrain))
     predictionTest = clf_svmLR.predict(FeaturesTest)
     print("Accuracy for SVM on TEST data: ", accuracy_score(TextureLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, predictionTest))
@@ -89,6 +92,9 @@ if __name__ == '__main__':
     print("\n~~~ SVM - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
     clf_svmCS = SVC(C=0.001, gamma=0.5,kernel='poly',random_state=0)
     clf_svmCS.fit(FeaturesTrain, ColorLabelTrain)
+    predictionTrain = clf_svmCS.predict(FeaturesTrain)
+    print("Accuracy for SVM on TEST data: ", accuracy_score(ColorLabelTrain, predictionTrain))
+    print("Confusion Matrix: ", confusion_matrix(ColorLabelTrain, predictionTrain))
     predictionTest = clf_svmCS.predict(FeaturesTest)
     print("Accuracy for SVM on TEST data: ", accuracy_score(ColorLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(ColorLabelTest, predictionTest))
