@@ -9,9 +9,9 @@ from sklearn.preprocessing import LabelEncoder
 
 if __name__ == '__main__':
     teste = lambda x: x.strip("[]").replace("'", "").split(", ")
-    train = pd.read_csv('NormTrain658.csv', index_col=False, sep=";",
+    train = pd.read_csv('TrainAR1200.csv', index_col=False, sep=";",
                         converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
-    test = pd.read_csv('NormTest160.csv', index_col=False, sep=";",
+    test = pd.read_csv('TestAR1200.csv', index_col=False, sep=";",
                        converters={'ColorH': teste, 'ColorS': teste, 'ColorV': teste})
     le = LabelEncoder()
 
@@ -64,17 +64,23 @@ if __name__ == '__main__':
     # clf.best_params_
     # print(clf.best_params_)
     print("\n~~~ REDE NEURAL  - CLASSIFICADOR LISO X RUGOSO~~~")
-
-    clf_nnLR = MLPClassifier(hidden_layer_sizes= (5, 2), solver= 'lbfgs', activation= 'tanh', learning_rate= 'constant', random_state= 5, alpha= 1)
+    # {'hidden_layer_sizes': (50, 100, 50), 'random_state': 50, 'learning_rate': 'constant', 'solver': 'lbfgs', 'alpha': 1e-06, 'activation': 'relu'}
+    clf_nnLR = MLPClassifier(hidden_layer_sizes= (50, 100,50), solver= 'lbfgs', activation= 'relu', learning_rate= 'constant', random_state= 50, alpha= 1e-06)
     clf_nnLR.fit(FeaturesTrain, TextureLabelTrain)
+    predictionTrain = clf_nnLR.predict(FeaturesTrain)
+    print("Accuracy for Neural Network on TRAIN data: ", accuracy_score(TextureLabelTrain, predictionTrain))
+    print("Confusion Matrix: ", confusion_matrix(TextureLabelTrain, predictionTrain))
     predictionTest = clf_nnLR.predict(FeaturesTest)
     print("Accuracy for Neural Network on TEST data: ", accuracy_score(TextureLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(TextureLabelTest, predictionTest))
 
     print("\n~~~ REDE NEURAL - CLASSIFICADOR COM DEFEITO X SEM DEFEITO ~~~")
-    clf_nnCS = MLPClassifier(activation= 'relu', learning_rate= 'constant', random_state= 1, hidden_layer_sizes= (50, 100, 50), alpha= 1e-05, solver= 'adam')
+    # {'learning_rate': 'constant', 'hidden_layer_sizes': (50, 100, 50), 'activation': 'relu', 'random_state': 1, 'solver': 'lbfgs', 'alpha': 0.05}
+    clf_nnCS = MLPClassifier(activation= 'relu', learning_rate= 'constant', random_state= 1, hidden_layer_sizes= (50, 100, 50), alpha= 0.05, solver= 'lbfgs')
     clf_nnCS.fit(FeaturesTrain, ColorLabelTrain)
-    # print("[STATUS] Predicting TEST DataBase..")
+    predictionTrain = clf_nnCS.predict(FeaturesTrain)
+    print("Accuracy for Neural Network on TRAIN data: ", accuracy_score(ColorLabelTrain, predictionTrain))
+    print("Confusion Matrix: ", confusion_matrix(ColorLabelTrain, predictionTrain))
     predictionTest = clf_nnCS.predict(FeaturesTest)
     print("Accuracy for Neural Network on TEST data: ", accuracy_score(ColorLabelTest, predictionTest))
     print("Confusion Matrix: ", confusion_matrix(ColorLabelTest, predictionTest))
