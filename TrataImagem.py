@@ -48,12 +48,14 @@ def TrataImagem(src,visual,verbose):
         plt.show()
     """ PROCESSAMENTO DA IMAGEM """
      # Filtro para borrar
-    s_Blur = cv.blur(s,(5,5))
+    s_Blur = cv.GaussianBlur(s,(5,5),0)
+    #s_Blur = cv.blur(s,(5,5))
     # Binarizando a imagem
     _, s_Thresh = cv.threshold(s_Blur,50,255,cv.THRESH_BINARY)
     # Morfologia tamanho do elemento estrutural
     block_size = 30
-    kernel = np.ones((block_size, block_size), np.uint8)
+    kernel= cv.getStructuringElement(cv.MORPH_ELLIPSE, (block_size, block_size))
+    #kernel = np.ones((block_size, block_size), np.uint8)
     # Executando Dilation e Closing
     s_Closing = cv.morphologyEx(s_Thresh, cv.MORPH_CLOSE, kernel)
     # Resultado da Máscara em RGB
