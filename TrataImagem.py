@@ -183,9 +183,10 @@ def TrataImagem(src,visual,verbose):
 
         """DESENHANDO HISTOGRAMA"""
         plt.figure()
+        csfont = {'fontname': 'Times New Roman'}
         plt.title("H Histogram")
-        plt.xlabel("Bins")
-        plt.ylabel("# of Pixels")
+        plt.xlabel("Níveis de cinza",**csfont,fontsize=12)
+        plt.ylabel("Número de Pixels",**csfont,fontsize=12)
         plt.plot(histH)
         plt.xlim([0, 256])
         plt.show()
